@@ -1,0 +1,61 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Left Center Start to Center"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Left Collection Cycle A"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Left Collection A to Trench"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Left Trench to Depot"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "startShooter"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 5.0
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Depot to Left Climb"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "lowerClimb"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": false
+}
