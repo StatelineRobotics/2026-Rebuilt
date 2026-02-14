@@ -10,5 +10,7 @@ public class Constants {
     public static final int rightFlywheelId = 21;
     public static final int hoodId = 22;
     public static final int turretId = 23;
+    public static final int pivotId = 24;
+    public static final int rollerId = 25;
 
 }

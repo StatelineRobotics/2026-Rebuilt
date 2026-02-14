@@ -4,9 +4,16 @@
 
 package frc.robot.subsystems.Launcher;
 
+import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
+@Logged
 public class Launcher extends SubsystemBase {
+
+  private Hood hood = new Hood();
+  private Turret turret = new Turret();
+  private Flywheel flywheel = new Flywheel();
+
   /** Creates a new Launcher. */
   public Launcher() {}
 

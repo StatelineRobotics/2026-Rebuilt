@@ -4,9 +4,11 @@
 
 package frc.robot.subsystems.Launcher;
 
+import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-public class Hood extends SubsystemBase {
+@Logged
+class Hood extends SubsystemBase {
   /** Creates a new Hood. */
   public Hood() {}
 
