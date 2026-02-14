@@ -17,14 +17,14 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
-public class Flywheel extends SubsystemBase {
+class Flywheel extends SubsystemBase {
 
   private TalonFX leftFlywheelMotor = new TalonFX(Constants.leftFlyweelId, CANBus.roboRIO());
   private TalonFX rightFlywheelMotor = new TalonFX(Constants.rightFlywheelId, CANBus.roboRIO());
 
   private double motorToFlywheelRatio = 15/18;
 
-  private ControlRequest velocityControlRequest = new VelocityTorqueCurrentFOC(motorToFlywheelRatio)
+  private ControlRequest velocityControlRequest = new VelocityTorqueCurrentFOC(motorToFlywheelRatio);
 
 
   /** Creates a new Flywheel. */
