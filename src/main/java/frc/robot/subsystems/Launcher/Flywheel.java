@@ -24,7 +24,7 @@ class Flywheel extends SubsystemBase {
   private TalonFX leftFlywheelMotor = new TalonFX(Constants.leftFlyweelId, CANBus.roboRIO());
   private TalonFX rightFlywheelMotor = new TalonFX(Constants.rightFlywheelId, CANBus.roboRIO());
 
-  private double motorToFlywheelRatio = 15.0/18.0;
+  private static final double motorToFlywheelRatio = 15.0/18.0;
 
   private ControlRequest velocityControlRequest = new VelocityTorqueCurrentFOC(motorToFlywheelRatio);
 
