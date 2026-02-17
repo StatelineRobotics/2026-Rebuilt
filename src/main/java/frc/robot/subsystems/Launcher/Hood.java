@@ -33,8 +33,9 @@ class Hood extends SubsystemBase {
   private TalonFX hoodMotor = new TalonFX(Constants.hoodId);
   private TalonFXConfiguration hoodConfig = new TalonFXConfiguration();
 
-  private ControlRequest positionRequest = new PositionVoltage(0);
-  private ControlRequest voltageRequest = new VoltageOut(0);
+  private PositionVoltage positionRequest = new PositionVoltage(0);
+  private VoltageOut voltageRequest = new VoltageOut(0);
+  private NeutralOut neutralOut = new NeutralOut();
 
   private StatusSignal<AngularVelocity> velocitySignal = hoodMotor.getVelocity();
   private StatusSignal<Current> statorCurrentSignal = hoodMotor.getStatorCurrent();
@@ -80,9 +81,9 @@ class Hood extends SubsystemBase {
   protected Command zeroHoodCommand() {
     return new ParallelRaceGroup(
       startEnd(
-          () -> hoodMotor.setControl(new VoltageOut(-2.0)), 
+          () -> hoodMotor.setControl(voltageRequest.withOutput(-2.0)), 
           () -> {
-            hoodMotor.setControl(new NeutralOut());
+            hoodMotor.setControl(neutralOut);
             hoodMotor.setPosition(hoodPositionOffset);
           })
         .until(this::isStalled)
