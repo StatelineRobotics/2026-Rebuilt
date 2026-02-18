@@ -14,5 +14,6 @@ public class Constants {
     public static final int rollerId = 18;
     public static final int ovalId = 22;
     public static final int kickerId = 23;
+    public static final int climberId = 24;
 
 }

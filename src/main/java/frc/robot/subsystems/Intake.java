@@ -48,7 +48,7 @@ public class Intake extends SubsystemBase {
     SparkFlexConfig pivotConfig = new SparkFlexConfig();
     pivotConfig
       .idleMode(IdleMode.kCoast)
-      .inverted(false)
+      .inverted(true)
       .smartCurrentLimit(20);
     pivotConfig.absoluteEncoder
       .inverted(false)
