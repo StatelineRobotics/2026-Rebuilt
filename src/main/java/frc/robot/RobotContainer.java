@@ -108,7 +108,7 @@ public class RobotContainer {
 
     joystick.rightTrigger()
         .whileTrue(launcher.targetHub()
-            .alongWith(Commands.waitUntil(launcher.launcherReady).andThen(indexer.runIndexer()))
+            .alongWith(Commands.waitUntil(launcher.launcherReady).andThen(indexer.runWithAntijam()))
             .alongWith(Commands.runOnce(() -> {
               currentMax = shootingMaxSpeed;
               currentMaxRotation = shootingMaxRotation;
@@ -140,7 +140,7 @@ public class RobotContainer {
   public void doNamedCommands() {
     NamedCommands.registerCommand(
         "runShooter",
-        Commands.parallel(launcher.targetHub(), reverseRunCommand(launcher.launcherReady))
+        Commands.parallel(launcher.targetHub(), Commands.waitUntil(launcher.launcherReady).andThen(indexer.runWithAntijam()))
             .asProxy());
     NamedCommands.registerCommand("runIntake", intake.intakeCommand().asProxy());
     new EventTrigger("runIntake").onTrue(intake.intakeCommand().asProxy());
@@ -158,9 +158,5 @@ public class RobotContainer {
   public Command getShootCommand() {
     return launcher.targetHub()
         .alongWith(Commands.waitUntil(launcher.launcherReady).andThen(indexer.runIndexer()));
-  }
-
-  public Command reverseRunCommand(BooleanSupplier condition) {
-    return intake.reverseRunIntake(condition).alongWith(indexer.reverseRunIndexer(condition));
   }
 }
