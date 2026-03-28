@@ -220,7 +220,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
   }
 
   public ChassisSpeeds getFieldReletiveVelocity() {
-    return ChassisSpeeds.fromRobotRelativeSpeeds(getEstimatedVelocity(), getOperatorForwardDirection());
+    return ChassisSpeeds.fromRobotRelativeSpeeds(
+        getEstimatedVelocity(), getEstimatedPose().getRotation());
   }
 
   private void startSimThread() {

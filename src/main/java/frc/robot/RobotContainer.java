@@ -38,7 +38,7 @@ public class RobotContainer {
   private double currentMax = MaxSpeed;
   private double MaxAngularRate =
       RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
-  private double shootingMaxRotation = MaxAngularRate * 0.1;
+  private double shootingMaxRotation = MaxAngularRate * 0.2;
   private double currentMaxRotation = MaxAngularRate;
 
   /* Setting up bindings for necessary control of the swerve drive platform */
@@ -107,20 +107,17 @@ public class RobotContainer {
     // ));
 
     joystick.rightTrigger()
-        .whileTrue(launcher.targetHub()
-            .alongWith(Commands.waitUntil(launcher.launcherReady).andThen(indexer.runIndexer()))
-            .alongWith(Commands.runOnce(() -> {
-              currentMax = shootingMaxSpeed;
-              currentMaxRotation = shootingMaxRotation;
-            })))
-        .whileFalse(
-            indexer.idleCommand().alongWith(intake.idleDeployed()).alongWith(Commands.runOnce(() -> {
-              currentMax = MaxSpeed;
-              currentMaxRotation = MaxAngularRate;
-            })));
+        .whileTrue(getShootCommand().alongWith(Commands.runOnce(() -> {
+          currentMax = shootingMaxSpeed;
+          currentMaxRotation = shootingMaxRotation;
+        })))
+        .whileFalse(indexer.idleCommand().alongWith(Commands.runOnce(() -> {
+          currentMax = MaxSpeed;
+          currentMaxRotation = MaxAngularRate;
+        })));
     joystick.leftTrigger().whileTrue(intake.intakeCommand()).onFalse(intake.idleDeployed());
-    joystick.leftBumper().whileTrue(intake.reverseIntake());
-    joystick.rightBumper().whileTrue(indexer.reverseIndexer());
+    joystick.leftBumper().whileTrue(intake.reverseIntake()).onFalse(intake.idleDeployed());
+    joystick.rightBumper().whileTrue(indexer.reverseIndexer()).whileFalse(indexer.idleCommand());
 
     joystick.a().whileTrue(intake.agitate()).onFalse(intake.deployCommand());
 
@@ -143,7 +140,10 @@ public class RobotContainer {
         Commands.parallel(launcher.targetHub(), reverseRunCommand(launcher.launcherReady))
             .asProxy());
     NamedCommands.registerCommand("runIntake", intake.intakeCommand().asProxy());
+    NamedCommands.registerCommand("LeftBump", tagger.getLeftBump());
+    NamedCommands.registerCommand("leftReturn", tagger.getLeftZone());
     new EventTrigger("runIntake").onTrue(intake.intakeCommand().asProxy());
+    new EventTrigger("shoot").whileTrue(getShootCommand().asProxy());
   }
 
   public Command getAutonomousCommand() {
@@ -157,7 +157,7 @@ public class RobotContainer {
 
   public Command getShootCommand() {
     return launcher.targetHub()
-        .alongWith(Commands.waitUntil(launcher.launcherReady).andThen(indexer.runIndexer()));
+        .alongWith(Commands.waitUntil(launcher.launcherReady).andThen(indexer.antiJamRun()));
   }
 
   public Command reverseRunCommand(BooleanSupplier condition) {

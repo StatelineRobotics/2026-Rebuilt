@@ -135,7 +135,7 @@ public class ShotCalculator {
     Angle turretAngle =
         difference.getAngle().minus(turretPose.getRotation()).getMeasure();
 
-    return new ShootingSolution(turretAngle, Degrees.of(hoodMap.get(distance)), flywheelMap.get(distance) - 2.0);
+    return new ShootingSolution(turretAngle, Degrees.of(hoodMap.get(distance)), flywheelMap.get(distance));
   }
 
   public static ShootingSolution getSOTMhubSolution(Pose2d turretPose, ChassisSpeeds robotVelocity) {
@@ -145,8 +145,8 @@ public class ShotCalculator {
       targetPose = redHubPose;
     }
 
-    var rotLinearVelocity = turretPerpVector.times(0.0);
-    if (false) {
+    var rotLinearVelocity = turretPerpVector;
+    if (true) {
       var adjPerp = turretPerpVector.rotateBy(turretPose.getRotation());
       rotLinearVelocity = adjPerp.times(robotVelocity.omegaRadiansPerSecond * Launcher.turretOffset.getNorm());
     }

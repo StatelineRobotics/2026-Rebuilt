@@ -58,19 +58,14 @@ public class Vision extends SubsystemBase {
   private Camera backCamera = new Camera(
       "BackCam",
       new Transform3d(
-          - // 0.295026,
-          // 0.288846,
-          -0.426707, // Likely -0.295026
-          0.435925, // Likely 0.288846
-          0.485,
-          new Rotation3d(0.0, Math.toRadians(-15), Math.toRadians(180.0))),
+          -0.29142425, 0.291663, 0.447, new Rotation3d(0.0, Math.toRadians(-15), Math.toRadians(180.0))),
       visionSim,
       useSim);
 
   private Camera frontCamera = new Camera(
       "FrontCam",
       new Transform3d(
-          -0.29502575, 0.088337, 0.468, new Rotation3d(0.0, Math.toRadians(-15), Math.toRadians(0.0))),
+          -0.29502575, 0.088337, 0.468, new Rotation3d(0.0, Math.toRadians(-15.0), Math.toRadians(0.0))),
       visionSim,
       useSim);
 
@@ -98,6 +93,7 @@ public class Vision extends SubsystemBase {
     }
 
     SmartDashboard.putBoolean("UseCameras", true);
+    SmartDashboard.putBoolean("Use PNP", false);
   }
 
   @Override
@@ -186,16 +182,14 @@ public class Vision extends SubsystemBase {
         var estimate = poseEstimator.estimateCoprocMultiTagPose(result);
         if (estimate.isEmpty()) {
           estimate = poseEstimator.estimateLowestAmbiguityPose(result);
+          if (estimate.isEmpty()) {
+            continue;
+          }
         }
 
-        if (setIntrinsics) {
+        if (setIntrinsics && SmartDashboard.getBoolean("Use PNP", false)) {
           estimate = poseEstimator.estimateConstrainedSolvepnpPose(
-              result,
-              cameraMatrix.get(),
-              distCoeff.get(),
-              estimate.get().estimatedPose,
-              DriverStation.isEnabled(),
-              0.5);
+              result, cameraMatrix.get(), distCoeff.get(), estimate.get().estimatedPose, true, 0.5);
         }
 
         if (estimate.isEmpty()) {
@@ -208,7 +202,8 @@ public class Vision extends SubsystemBase {
             || tempEstimatedPose.getX()
                 > (kTagLayout.getFieldLength()
                     - Inches.of(33.0 / 2.0).in(Meters))
-            || tempEstimatedPose.getY() < 0 && tempEstimatedPose.getY() > kTagLayout.getFieldWidth()) {
+            || tempEstimatedPose.getY() < 0 && tempEstimatedPose.getY() > kTagLayout.getFieldWidth()
+            || Math.abs(tempEstimatedPose.getZ()) > 0.1) {
           continue;
         }
 

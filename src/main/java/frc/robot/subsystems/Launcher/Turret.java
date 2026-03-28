@@ -109,9 +109,8 @@ class Turret extends SubsystemBase {
   }
 
   protected Command targetAngle(Supplier<Angle> targetAngle) {
-    return run(() -> turretMotor.setControl(positionRequest
-        .withPosition(wrapTargetAngle(targetAngle.get().plus(Degrees.of(turretOffset.getDouble(0.0)))))
-        .withVelocity(0)));
+    return run(() -> turretMotor.setControl(positionRequest.withPosition(
+        wrapTargetAngle(targetAngle.get().plus(Degrees.of(turretOffset.getDouble(0.0)))))));
   }
 
   protected Command targetAngleWithVelocity(Supplier<Angle> targetAngle, Supplier<AngularVelocity> targetVelocity) {

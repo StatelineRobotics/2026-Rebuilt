@@ -89,7 +89,7 @@ public class Flywheel extends SubsystemBase {
 
     motorConfig.Feedback.withSensorToMechanismRatio(motorToFlywheelRatio);
 
-    motorConfig.Slot0.withKP(0.5).withKD(0.0).withKS(0.24959).withKV(0.10239);
+    motorConfig.Slot0.withKP(0.75).withKD(0.0).withKS(0.24959).withKV(0.099239);
 
     return motorConfig;
   }

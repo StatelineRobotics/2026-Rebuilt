@@ -8,20 +8,20 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.6340896260092916,
-        "y": 7.776656422642147
+        "x": 3.605989408418374,
+        "y": 7.160195360664835
       },
       "isLocked": false,
       "linkedName": "Left Bump Shot"
     },
     {
       "anchor": {
-        "x": 2.0076890156918683,
-        "y": 7.030299572039943
+        "x": 3.2498002853067045,
+        "y": 7.41845934379458
       },
       "prevControl": {
-        "x": 2.2044555877472534,
-        "y": 6.72603788730574
+        "x": 3.042946554006936,
+        "y": 7.278061573700596
       },
       "nextControl": null,
       "isLocked": false,
@@ -36,12 +36,19 @@
   ],
   "constraintZones": [],
   "pointTowardsZones": [],
-  "eventMarkers": [],
+  "eventMarkers": [
+    {
+      "name": "shoot",
+      "waypointRelativePos": 0,
+      "endWaypointRelativePos": 1.0,
+      "command": null
+    }
+  ],
   "globalConstraints": {
-    "maxVelocity": 3.0,
-    "maxAcceleration": 3.0,
-    "maxAngularVelocity": 540.0,
-    "maxAngularAcceleration": 720.0,
+    "maxVelocity": 1.0,
+    "maxAcceleration": 1.0,
+    "maxAngularVelocity": 30.0,
+    "maxAngularAcceleration": 100.0,
     "nominalVoltage": 12.0,
     "unlimited": false
   },
@@ -55,5 +62,5 @@
     "velocity": 0,
     "rotation": -29.999999999999996
   },
-  "useDefaultConstraints": true
+  "useDefaultConstraints": false
 }

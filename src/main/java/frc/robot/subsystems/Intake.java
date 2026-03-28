@@ -89,11 +89,11 @@ public class Intake extends SubsystemBase {
         .getConfigurator()
         .apply(rollerConfig.MotorOutput.withInverted(InvertedValue.Clockwise_Positive));
 
-    if (Math.abs(storePosition - pivotMotor.getAbsoluteEncoder().getPosition()) < 0.05) {
+    pivotMotor.getEncoder().setPosition(storePosition);
+
+    if (Math.abs(storePosition - pivotMotor.getAbsoluteEncoder().getPosition()) > 0.05) {
       absoluteEncoderAlert.set(true);
     }
-
-    pivotMotor.getEncoder().setPosition(storePosition);
 
     SmartDashboard.putBoolean("UsePivotInternal", false);
   }

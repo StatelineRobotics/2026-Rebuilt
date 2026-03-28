@@ -8,6 +8,8 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.util.PathPlannerLogging;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
@@ -19,36 +21,58 @@ import frc.robot.subsystems.CommandSwerveDrivetrain;
 public class AutoTagger {
   private PathPlannerPath depotPath;
   private PathPlannerPath humanPath;
-  private boolean depotAvalible = true;
-  private boolean humanAvalible = true;
   private Alert depotAlert = new Alert("Depot Path NOT Found", AlertType.kWarning);
+  private Alert humanAlert = new Alert("Depot Path NOT Found", AlertType.kWarning);
   private Command shootCommand;
+
+  private Pose2d targetPose = new Pose2d();
 
   private SendableChooser<Command> tagChooser = new SendableChooser<>();
 
   public PathConstraints constraints =
       new PathConstraints(3.0, 4.0, Units.degreesToRadians(540), Units.degreesToRadians(720));
+  public PathConstraints sotmConstraints =
+      new PathConstraints(1.0, 1.0, Units.degreesToRadians(25), Units.degreesToRadians(25));
+
+  public PathPlannerPath leftBump;
+  public PathPlannerPath leftStart;
+  private Alert leftBumpAlert = new Alert("Left Bump NOT Found", AlertType.kWarning);
 
   public AutoTagger(CommandSwerveDrivetrain drivetrain, Command shoot) {
+    PathPlannerLogging.setLogTargetPoseCallback(this::setTarget);
     shootCommand = shoot;
     var idleRequest = new SwerveRequest.Idle();
     tagChooser.setDefaultOption("None", drivetrain.applyRequest(() -> idleRequest));
+    tagChooser.addOption("ShootToend", shoot());
 
     try {
       depotPath = PathPlannerPath.fromPathFile("Depot");
       tagChooser.addOption("Depot", getDepot());
     } catch (Exception e) {
-      depotAvalible = false;
       depotAlert.set(true);
     }
     try {
       humanPath = PathPlannerPath.fromPathFile("Human Player");
       tagChooser.addOption("Human Player", getHumanPlayer());
     } catch (Exception e) {
-      depotAvalible = false;
-      depotAlert.set(true);
+      humanAlert.set(true);
     }
-    tagChooser.addOption("ShootToend", shoot());
+
+    try {
+      leftStart = PathPlannerPath.fromPathFile("Left Trench Shot to 2nd Sweep");
+    } catch (Exception e) {
+      humanAlert.set(true);
+    }
+
+    try {
+      leftBump = PathPlannerPath.fromPathFile("Left Bump");
+    } catch (Exception e) {
+      leftBumpAlert.set(true);
+    }
+  }
+
+  private void setTarget(Pose2d target) {
+    targetPose = target;
   }
 
   public SendableChooser<Command> getChosser() {
@@ -67,7 +91,83 @@ public class AutoTagger {
         .withName("HumanTag");
   }
 
+  public Command getLeftBump() {
+    return replaningPathfinding(leftBump, constraints);
+  }
+
+  public Command getLeftZone() {
+    return AutoBuilder.pathfindToPose(leftStart.getStartingHolonomicPose().get(), sotmConstraints)
+        .raceWith(shootCommand.asProxy());
+  }
+
   private Command shoot() {
     return shootCommand.asProxy().withName("ShootToEnd");
   }
+
+  private double distanceToTarget() {
+    return AutoBuilder.getCurrentPose().getTranslation().getDistance(targetPose.getTranslation());
+  }
+
+  private double distanceToStart(PathPlannerPath path) {
+    return AutoBuilder.getCurrentPose()
+        .getTranslation()
+        .getDistance(path.getStartingHolonomicPose().get().getTranslation());
+  }
+
+  private Command replaningPathfinding(PathPlannerPath path, PathConstraints constraints) {
+    return (AutoBuilder.pathfindThenFollowPath(path, constraints)
+            .until(() -> distanceToTarget() > 0.1)
+            .repeatedly())
+        .until(() -> distanceToStart(path) < 0.1)
+        .andThen(AutoBuilder.pathfindThenFollowPath(path, constraints));
+  }
+
+  // class ReplanningPath {
+  //   Alert alert;
+  //   PathPlannerPath path;
+
+  //   public ReplanningPath(String pathname) {
+  //     alert = new Alert(pathname + "NOT found", AlertType.kWarning);
+  //     try {
+  //       path = PathPlannerPath.fromPathFile(pathname);
+  //       alert.set(false);
+  //     } catch (Exception e) {
+  //       alert.set(true);
+  //     }
+  //   }
+
+  //   public Command getCommand() {
+  //     if (path == null) {
+  //       return Commands.idle().withTimeout(1.0);
+  //     }
+  //     return replaningPathfinding(path, constraints).withName(path.name);
+  //   }
+  // }
+
+  // class Tag {
+  //   Alert alert;
+  //   PathPlannerPath path;
+  //   boolean shoot;
+
+  //   public Tag(String pathName, SendableChooser<Command> selector, boolean shootAtEnd) {
+  //     alert = new Alert(pathName + "NOT found", AlertType.kWarning);
+  //     shoot = shootAtEnd;
+  //     try {
+  //       path = PathPlannerPath.fromPathFile(pathName);
+  //       selector.addOption(pathName, getCommand());
+  //       alert.set(false);
+  //     } catch (Exception e) {
+  //       alert.set(true);
+  //       e.printStackTrace();
+  //     }
+  //   }
+
+  //   private Command getCommand() {
+  //     Command command = AutoBuilder.pathfindThenFollowPath(humanPath, constraints);
+  //     if (shoot) {
+  //       command = command.andThen(shootCommand.asProxy());
+  //     }
+  //     return command.withName(path.name);
+  //   }
+  // }
 }
