@@ -137,7 +137,7 @@ public class RobotContainer {
   public void doNamedCommands() {
     NamedCommands.registerCommand(
         "runShooter",
-        Commands.parallel(launcher.targetHub(), reverseRunCommand(launcher.launcherReady))
+        Commands.parallel(launcher.targetHub(), Commands.waitUntil(launcher.launcherReady).andThen(indexer.runWithAntijam()))
             .asProxy());
     NamedCommands.registerCommand("runIntake", intake.intakeCommand().asProxy());
     NamedCommands.registerCommand("LeftBump", tagger.getLeftBump());
@@ -158,9 +158,5 @@ public class RobotContainer {
   public Command getShootCommand() {
     return launcher.targetHub()
         .alongWith(Commands.waitUntil(launcher.launcherReady).andThen(indexer.antiJamRun()));
-  }
-
-  public Command reverseRunCommand(BooleanSupplier condition) {
-    return intake.reverseRunIntake(condition).alongWith(indexer.reverseRunIndexer(condition));
   }
 }
