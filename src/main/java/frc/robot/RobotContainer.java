@@ -8,7 +8,6 @@ import static edu.wpi.first.units.Units.*;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
-import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.FollowPathCommand;
 import com.pathplanner.lib.events.EventTrigger;
@@ -20,8 +19,10 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
+import frc.robot.Util.MirroringAutoBuilder;
 import frc.robot.generated.TunerConstants;
 import frc.robot.lib.BLine.FollowPath;
 import frc.robot.lib.BLine.Path;
@@ -60,19 +61,28 @@ public class RobotContainer {
   public final Launcher launcher = new Launcher(drivetrain);
   public final Intake intake = new Intake();
   public final Indexer indexer = new Indexer();
-  public final Vision vision =
-      new Vision(drivetrain::addVisionMeasurement, () -> pose, drivetrain::getPigeonRotation);
-
-  public final AutoTagger tagger = new AutoTagger(drivetrain, getShootCommand(), intake.autoAgitate());
+  public final Vision vision = new Vision(drivetrain, () -> pose);
 
   private final SendableChooser<Command> autoChooser;
+  private final SendableChooser<String> sideChosser = new SendableChooser<String>();
+
+  public final AutoTagger tagger = new AutoTagger(
+      drivetrain, () -> sideChosser.getSelected() == "Right", getShootCommand(), intake.autoAgitate());
 
   Pose2d blinePose = new Pose2d();
 
   public RobotContainer() {
+
     doNamedCommands();
-    autoChooser = AutoBuilder.buildAutoChooser("");
+    sideChosser.setDefaultOption("Left", "Left");
+    sideChosser.addOption("Right", "Right");
+    autoChooser = MirroringAutoBuilder.buildAutoChooserWithOptionsModifier(
+        "",
+        () -> sideChosser.getSelected() == "Right",
+        (stream) -> true ? stream.filter(auto -> auto.getName().startsWith("COMP")) : stream);
+
     SmartDashboard.putData("Auto Mode", autoChooser);
+    SmartDashboard.putData("Start Side", sideChosser);
     SmartDashboard.putNumber("Auto Delay", 0.0);
     SmartDashboard.putData("Auto Tag", tagger.getChosser());
     SmartDashboard.putData("testLauncher", launcher.testCommand().alongWith(indexer.runIndexer()));
@@ -96,7 +106,8 @@ public class RobotContainer {
             () -> drive.withVelocityX((Math.pow(-joystick.getLeftY(), 3))
                     * currentMax) // Drive forward with negative Y (forward)
                 .withVelocityY(Math.pow(-joystick.getLeftX(), 3) * currentMax
-                    + drivetrain.getTrenchOffset()) // Drive left with negative X (left)
+                    + drivetrain.getTrenchOffset(joystick.rightTrigger()
+                        .getAsBoolean())) // Drive left with negative X (left)
                 .withRotationalRate(-joystick.getRightX()
                     * currentMaxRotation) // Drive counterclockwise with negative X (left)
             ));
@@ -142,6 +153,8 @@ public class RobotContainer {
 
   public void doNamedCommands() {
     Path returnPath = new Path("Left Bump Return");
+    Path mirrorReturnPath = new Path("Left Bump Return");
+    mirrorReturnPath.mirror();
 
     NamedCommands.registerCommand(
         "runShooter",
@@ -151,8 +164,13 @@ public class RobotContainer {
             .asProxy());
     NamedCommands.registerCommand("runIntake", intake.intakeCommand().asProxy());
     NamedCommands.registerCommand(
-        "LeftBump", drivetrain.pathBuilder.build(returnPath).until(drivetrain::inAllianceZone));
-    NamedCommands.registerCommand("leftReturn", tagger.getLeftZone());
+        "LeftBump",
+        new ConditionalCommand(
+                drivetrain.pathBuilder.build(mirrorReturnPath),
+                drivetrain.pathBuilder.build(returnPath),
+                () -> sideChosser.getSelected() == "Right")
+            .until(drivetrain::inAllianceZone));
+    NamedCommands.registerCommand("leftReturn", tagger.navigateToTrenchShot());
     new EventTrigger("runIntake").onTrue(intake.intakeCommand().asProxy());
     new EventTrigger("shoot").whileTrue(getShootCommand().asProxy());
   }

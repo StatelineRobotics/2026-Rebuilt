@@ -110,6 +110,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
           null,
           this));
 
+  public boolean resetPose = false;
+  public boolean okToReset = false;
   public FollowPath.Builder pathBuilder = new FollowPath.Builder(
       this, // Subsystem requirement
       this::getEstimatedPose, // Current pose supplier
@@ -221,6 +223,12 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         m_hasAppliedOperatorPerspective = true;
       });
     }
+
+    if (getMaxPigionRollPitch() > 0.015) {
+      resetPose = true;
+    } else {
+      okToReset = false;
+    }
   }
 
   public Pose2d getEstimatedPose() {
@@ -286,7 +294,16 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     return getPigeon2().getYaw(true).getDataCopy();
   }
 
-  public double getTrenchOffset() {
+  public double getMaxPigionRollPitch() {
+    return Math.max(
+        getPigeon2().getPitch(false).getValueAsDouble(),
+        getPigeon2().getRoll(false).getValueAsDouble());
+  }
+
+  public double getTrenchOffset(boolean ignorePID) {
+    if (ignorePID) {
+      return 0.0;
+    }
     var pose = getEstimatedPose();
     boolean closeX = Math.abs(pose.getX() - Inches.of(182.11).in(Meters))
         < Inches.of(75).in(Meters);

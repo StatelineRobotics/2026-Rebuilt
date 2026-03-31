@@ -1,3 +1,11 @@
 [
-
+  {
+    "name": "/tuning/flywheelTarget",
+    "type": "double",
+    "value": 5.0,
+    "properties": {
+      "persistent": true,
+      "retained": true
+    }
+  }
 ]

@@ -41,10 +41,8 @@ public class Vision extends SubsystemBase {
   // Sim stuff
   VisionSystemSim visionSim = new VisionSystemSim("main");
   Supplier<Pose2d> poseSupplier;
-  Supplier<SignalMeasurement<Angle>> pigeonRotationSupplier;
   private boolean useSim = false;
-
-  private EstimateConsumer estimateConsumer;
+  CommandSwerveDrivetrain drivetrain;
 
   public static final AprilTagFieldLayout kTagLayout = AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
 
@@ -78,13 +76,9 @@ public class Vision extends SubsystemBase {
   private Camera[] cameras = {leftCamera, backCamera, frontCamera, rightCamera};
 
   /** Creates a new Vision. */
-  public Vision(
-      EstimateConsumer poseConsumer,
-      Supplier<Pose2d> simPoseSupplier,
-      Supplier<SignalMeasurement<Angle>> headingSupplier) {
-    estimateConsumer = poseConsumer;
+  public Vision(CommandSwerveDrivetrain Drivetrain, Supplier<Pose2d> simPoseSupplier) {
     poseSupplier = simPoseSupplier;
-    pigeonRotationSupplier = headingSupplier;
+    drivetrain = Drivetrain;
 
     if (Robot.isSimulation() && useSim) {
       visionSim.addAprilTags(kTagLayout);
@@ -106,7 +100,7 @@ public class Vision extends SubsystemBase {
       return;
     }
     for (var camera : cameras) {
-      camera.update(estimateConsumer, pigeonRotationSupplier.get());
+      camera.update(drivetrain::addVisionMeasurement, drivetrain.getPigeonRotation());
     }
   }
 
@@ -182,7 +176,7 @@ public class Vision extends SubsystemBase {
         var estimate = poseEstimator.estimateCoprocMultiTagPose(result);
         if (estimate.isEmpty()) {
           estimate = poseEstimator.estimateLowestAmbiguityPose(result);
-          if (estimate.isEmpty()) {
+          if (estimate.isEmpty() || estimate.get().targetsUsed.get(0).poseAmbiguity > 0.15) {
             continue;
           }
         }
@@ -205,6 +199,11 @@ public class Vision extends SubsystemBase {
             || tempEstimatedPose.getY() < 0 && tempEstimatedPose.getY() > kTagLayout.getFieldWidth()
             || Math.abs(tempEstimatedPose.getZ()) > 0.1) {
           continue;
+        }
+
+        if (drivetrain.resetPose && drivetrain.okToReset && Math.abs(tempEstimatedPose.getZ()) < 0.05) {
+          drivetrain.resetPose(estimate.get().estimatedPose.toPose2d());
+          drivetrain.resetPose = false;
         }
 
         estimatedPose = estimate.get();

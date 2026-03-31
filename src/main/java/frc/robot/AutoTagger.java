@@ -15,7 +15,9 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import java.util.function.BooleanSupplier;
 
 /** Add your docs here. */
 public class AutoTagger {
@@ -31,7 +33,7 @@ public class AutoTagger {
   private SendableChooser<Command> tagChooser = new SendableChooser<>();
 
   public PathConstraints constraints =
-      new PathConstraints(3.5, 3.0, Units.degreesToRadians(540), Units.degreesToRadians(720));
+      new PathConstraints(2.5, 3.0, Units.degreesToRadians(540), Units.degreesToRadians(720));
   public PathConstraints sotmConstraints =
       new PathConstraints(1.0, 0.5, Units.degreesToRadians(0), Units.degreesToRadians(0));
 
@@ -39,9 +41,12 @@ public class AutoTagger {
   public PathPlannerPath leftStart;
   private Alert leftBumpAlert = new Alert("Left Bump NOT Found", AlertType.kWarning);
 
-  public AutoTagger(CommandSwerveDrivetrain drivetrain, Command shoot, Command agitate) {
+  private BooleanSupplier shouldMirror;
+
+  public AutoTagger(CommandSwerveDrivetrain drivetrain, BooleanSupplier mirror, Command shoot, Command agitate) {
     PathPlannerLogging.setLogTargetPoseCallback(this::setTarget);
     shootCommand = shoot;
+    shouldMirror = mirror;
     agitateCommand = agitate;
     var idleRequest = new SwerveRequest.Idle();
     tagChooser.setDefaultOption("None", drivetrain.applyRequest(() -> idleRequest));
@@ -61,7 +66,7 @@ public class AutoTagger {
     }
 
     try {
-      leftStart = PathPlannerPath.fromPathFile("Left Trench Shot to 2nd Sweep");
+      leftStart = PathPlannerPath.fromPathFile("SecondSweep");
     } catch (Exception e) {
       humanAlert.set(true);
     }
@@ -93,82 +98,27 @@ public class AutoTagger {
         .withName("HumanTag");
   }
 
-  public Command getLeftBump() {
-    return replaningPathfinding(leftBump, constraints);
+  private Command flippingPathFollowingCommand(PathPlannerPath path) {
+    return new ConditionalCommand(
+        AutoBuilder.pathfindThenFollowPath(humanPath.mirrorPath(), constraints),
+        AutoBuilder.pathfindThenFollowPath(humanPath, constraints),
+        shouldMirror);
   }
 
-  public Command getLeftZone() {
+  private Command getLeftZone() {
     return AutoBuilder.pathfindToPose(leftStart.getStartingHolonomicPose().get(), constraints);
+  }
+
+  private Command getRightZone() {
+    return AutoBuilder.pathfindToPose(
+        leftStart.mirrorPath().getStartingHolonomicPose().get(), constraints);
+  }
+
+  public Command navigateToTrenchShot() {
+    return new ConditionalCommand(getRightZone(), getLeftZone(), shouldMirror);
   }
 
   private Command shoot() {
     return shootCommand.asProxy().withName("ShootToEnd");
   }
-
-  private double distanceToTarget() {
-    return AutoBuilder.getCurrentPose().getTranslation().getDistance(targetPose.getTranslation());
-  }
-
-  private double distanceToStart(PathPlannerPath path) {
-    return AutoBuilder.getCurrentPose()
-        .getTranslation()
-        .getDistance(path.getStartingHolonomicPose().get().getTranslation());
-  }
-
-  private Command replaningPathfinding(PathPlannerPath path, PathConstraints constraints) {
-    return (AutoBuilder.pathfindThenFollowPath(path, constraints)
-            .until(() -> distanceToTarget() > 0.1)
-            .repeatedly())
-        .until(() -> distanceToStart(path) < 0.1)
-        .andThen(AutoBuilder.pathfindThenFollowPath(path, constraints));
-  }
-
-  // class ReplanningPath {
-  //   Alert alert;
-  //   PathPlannerPath path;
-
-  //   public ReplanningPath(String pathname) {
-  //     alert = new Alert(pathname + "NOT found", AlertType.kWarning);
-  //     try {
-  //       path = PathPlannerPath.fromPathFile(pathname);
-  //       alert.set(false);
-  //     } catch (Exception e) {
-  //       alert.set(true);
-  //     }
-  //   }
-
-  //   public Command getCommand() {
-  //     if (path == null) {
-  //       return Commands.idle().withTimeout(1.0);
-  //     }
-  //     return replaningPathfinding(path, constraints).withName(path.name);
-  //   }
-  // }
-
-  // class Tag {
-  //   Alert alert;
-  //   PathPlannerPath path;
-  //   boolean shoot;
-
-  //   public Tag(String pathName, SendableChooser<Command> selector, boolean shootAtEnd) {
-  //     alert = new Alert(pathName + "NOT found", AlertType.kWarning);
-  //     shoot = shootAtEnd;
-  //     try {
-  //       path = PathPlannerPath.fromPathFile(pathName);
-  //       selector.addOption(pathName, getCommand());
-  //       alert.set(false);
-  //     } catch (Exception e) {
-  //       alert.set(true);
-  //       e.printStackTrace();
-  //     }
-  //   }
-
-  //   private Command getCommand() {
-  //     Command command = AutoBuilder.pathfindThenFollowPath(humanPath, constraints);
-  //     if (shoot) {
-  //       command = command.andThen(shootCommand.asProxy());
-  //     }
-  //     return command.withName(path.name);
-  //   }
-  // }
 }
