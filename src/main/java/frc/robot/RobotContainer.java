@@ -23,12 +23,13 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import frc.robot.generated.TunerConstants;
+import frc.robot.lib.BLine.FollowPath;
+import frc.robot.lib.BLine.Path;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Launcher.Launcher;
 import frc.robot.subsystems.Vision;
-import java.util.function.BooleanSupplier;
 
 @Logged
 public class RobotContainer {
@@ -62,9 +63,11 @@ public class RobotContainer {
   public final Vision vision =
       new Vision(drivetrain::addVisionMeasurement, () -> pose, drivetrain::getPigeonRotation);
 
-  public final AutoTagger tagger = new AutoTagger(drivetrain, getShootCommand());
+  public final AutoTagger tagger = new AutoTagger(drivetrain, getShootCommand(), intake.autoAgitate());
 
   private final SendableChooser<Command> autoChooser;
+
+  Pose2d blinePose = new Pose2d();
 
   public RobotContainer() {
     doNamedCommands();
@@ -73,6 +76,9 @@ public class RobotContainer {
     SmartDashboard.putNumber("Auto Delay", 0.0);
     SmartDashboard.putData("Auto Tag", tagger.getChosser());
     SmartDashboard.putData("testLauncher", launcher.testCommand().alongWith(indexer.runIndexer()));
+
+    FollowPath.setPoseLoggingConsumer((pair) -> blinePose = pair.getSecond());
+
     // SmartDashboard.putData(CommandScheduler.getInstance());
 
     configureBindings();
@@ -135,12 +141,17 @@ public class RobotContainer {
   }
 
   public void doNamedCommands() {
+    Path returnPath = new Path("Left Bump Return");
+
     NamedCommands.registerCommand(
         "runShooter",
-        Commands.parallel(launcher.targetHub(), Commands.waitUntil(launcher.launcherReady).andThen(indexer.runWithAntijam()))
+        Commands.parallel(
+                launcher.targetHub(),
+                Commands.waitUntil(launcher.launcherReady).andThen(indexer.antiJamRun()))
             .asProxy());
     NamedCommands.registerCommand("runIntake", intake.intakeCommand().asProxy());
-    NamedCommands.registerCommand("LeftBump", tagger.getLeftBump());
+    NamedCommands.registerCommand(
+        "LeftBump", drivetrain.pathBuilder.build(returnPath).until(drivetrain::inAllianceZone));
     NamedCommands.registerCommand("leftReturn", tagger.getLeftZone());
     new EventTrigger("runIntake").onTrue(intake.intakeCommand().asProxy());
     new EventTrigger("shoot").whileTrue(getShootCommand().asProxy());

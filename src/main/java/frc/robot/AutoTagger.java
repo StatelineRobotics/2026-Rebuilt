@@ -24,26 +24,28 @@ public class AutoTagger {
   private Alert depotAlert = new Alert("Depot Path NOT Found", AlertType.kWarning);
   private Alert humanAlert = new Alert("Depot Path NOT Found", AlertType.kWarning);
   private Command shootCommand;
+  private Command agitateCommand;
 
   private Pose2d targetPose = new Pose2d();
 
   private SendableChooser<Command> tagChooser = new SendableChooser<>();
 
   public PathConstraints constraints =
-      new PathConstraints(3.0, 4.0, Units.degreesToRadians(540), Units.degreesToRadians(720));
+      new PathConstraints(3.5, 3.0, Units.degreesToRadians(540), Units.degreesToRadians(720));
   public PathConstraints sotmConstraints =
-      new PathConstraints(1.0, 1.0, Units.degreesToRadians(25), Units.degreesToRadians(25));
+      new PathConstraints(1.0, 0.5, Units.degreesToRadians(0), Units.degreesToRadians(0));
 
   public PathPlannerPath leftBump;
   public PathPlannerPath leftStart;
   private Alert leftBumpAlert = new Alert("Left Bump NOT Found", AlertType.kWarning);
 
-  public AutoTagger(CommandSwerveDrivetrain drivetrain, Command shoot) {
+  public AutoTagger(CommandSwerveDrivetrain drivetrain, Command shoot, Command agitate) {
     PathPlannerLogging.setLogTargetPoseCallback(this::setTarget);
     shootCommand = shoot;
+    agitateCommand = agitate;
     var idleRequest = new SwerveRequest.Idle();
     tagChooser.setDefaultOption("None", drivetrain.applyRequest(() -> idleRequest));
-    tagChooser.addOption("ShootToend", shoot());
+    tagChooser.addOption("ShootToend", shoot().alongWith(agitateCommand.asProxy()));
 
     try {
       depotPath = PathPlannerPath.fromPathFile("Depot");
@@ -96,8 +98,7 @@ public class AutoTagger {
   }
 
   public Command getLeftZone() {
-    return AutoBuilder.pathfindToPose(leftStart.getStartingHolonomicPose().get(), sotmConstraints)
-        .raceWith(shootCommand.asProxy());
+    return AutoBuilder.pathfindToPose(leftStart.getStartingHolonomicPose().get(), constraints);
   }
 
   private Command shoot() {

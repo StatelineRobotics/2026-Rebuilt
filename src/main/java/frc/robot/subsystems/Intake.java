@@ -5,10 +5,12 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.NeutralOut;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.revrobotics.PersistMode;
 import com.revrobotics.ResetMode;
@@ -25,6 +27,7 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.generated.TunerConstants;
@@ -37,6 +40,7 @@ public class Intake extends SubsystemBase {
   private SparkAbsoluteEncoder pivotEncoder = pivotMotor.getAbsoluteEncoder();
   private SparkClosedLoopController pivotController = pivotMotor.getClosedLoopController();
   private TalonFX rollerMotor = new TalonFX(Constants.rollerId, TunerConstants.kCANBus);
+  private TalonFX otherRollerMotor = new TalonFX(27, TunerConstants.kCANBus);
   private TalonFX lowerRollerMotor = new TalonFX(Constants.lowerRollerID, TunerConstants.kCANBus);
 
   private NeutralOut neutralRequest = new NeutralOut();
@@ -45,8 +49,8 @@ public class Intake extends SubsystemBase {
   private static final double pivotRatio = 25.0 * (60.0 / 24.0) * 0.5; // planetary * gears * chain
 
   private static final double storePosition = 0.2;
-  private static final double intakePosition = -0.15;
-  private static final double deployPosition = 0.1;
+  private static final double intakePosition = -0.18;
+  private static final double deployPosition = 0.0;
 
   private final Alert absoluteEncoderAlert = new Alert("Intake Not Start In Expected Position", AlertType.kWarning);
   private boolean lastUseValue = false;
@@ -67,7 +71,7 @@ public class Intake extends SubsystemBase {
     pivotConfig
         .closedLoop
         .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
-        .p(30.0)
+        .p(40.0)
         .d(0.2)
         .positionWrappingEnabled(false);
     pivotMotor.configure(pivotConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
@@ -81,10 +85,11 @@ public class Intake extends SubsystemBase {
         .CurrentLimits
         .withSupplyCurrentLimitEnable(true)
         .withStatorCurrentLimitEnable(true)
-        .withSupplyCurrentLimit(25)
-        .withStatorCurrentLimit(70);
+        .withSupplyCurrentLimit(30)
+        .withStatorCurrentLimit(80);
 
     rollerMotor.getConfigurator().apply(rollerConfig);
+    otherRollerMotor.getConfigurator().apply(rollerConfig);
     lowerRollerMotor
         .getConfigurator()
         .apply(rollerConfig.MotorOutput.withInverted(InvertedValue.Clockwise_Positive));
@@ -94,6 +99,8 @@ public class Intake extends SubsystemBase {
     if (Math.abs(storePosition - pivotMotor.getAbsoluteEncoder().getPosition()) > 0.05) {
       absoluteEncoderAlert.set(true);
     }
+
+    otherRollerMotor.setControl(new Follower(Constants.rollerId, MotorAlignmentValue.Opposed));
 
     SmartDashboard.putBoolean("UsePivotInternal", false);
   }
@@ -134,7 +141,7 @@ public class Intake extends SubsystemBase {
     return startRun(
             () -> {
               pivotController.setSetpoint(deployPosition, ControlType.kPosition);
-              rollerMotor.setControl(neutralRequest);
+              rollerMotor.setControl(voltageRequest.withOutput(2.0));
               lowerRollerMotor.setControl(neutralRequest);
             },
             () -> {})
@@ -151,12 +158,16 @@ public class Intake extends SubsystemBase {
         () -> {});
   }
 
+  public Command autoAgitate() {
+    return Commands.waitSeconds(2.0).andThen(agitate());
+  }
+
   public Command intakeCommand() {
     return startRun(
         () -> {
           pivotController.setSetpoint(intakePosition, ControlType.kPosition);
-          rollerMotor.setControl(voltageRequest.withOutput(8.0));
-          lowerRollerMotor.setControl(voltageRequest.withOutput(9.0));
+          rollerMotor.setControl(voltageRequest.withOutput(6.0));
+          lowerRollerMotor.setControl(voltageRequest.withOutput(7.0));
         },
         () -> {});
   }

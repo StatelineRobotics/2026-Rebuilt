@@ -26,7 +26,7 @@ public class Indexer extends SubsystemBase {
   private SparkFlexSim ovalSim = new SparkFlexSim(ovalMotor, DCMotor.getNeoVortex(1));
   private SparkFlex kickerMotor = new SparkFlex(Constants.kickerId, MotorType.kBrushless);
   private Trigger isStalled = new Trigger(this::likelyStalled);
-  
+
   /** Creates a new Indexer. */
   public Indexer() {
     ovalMotor.configure(

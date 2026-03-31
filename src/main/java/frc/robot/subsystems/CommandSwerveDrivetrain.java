@@ -29,6 +29,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.generated.TunerConstants.TunerSwerveDrivetrain;
+import frc.robot.lib.BLine.FollowPath;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -108,6 +109,17 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
           },
           null,
           this));
+
+  public FollowPath.Builder pathBuilder = new FollowPath.Builder(
+      this, // Subsystem requirement
+      this::getEstimatedPose, // Current pose supplier
+      this::getEstimatedVelocity, // Current speeds supplier
+      (speeds) -> setControl(
+          m_pathApplyRobotSpeeds.withSpeeds(ChassisSpeeds.discretize(speeds, 0.020))), // Drive consumer
+      new PIDController(5.0, 0.0, 0.0), // Translation controller
+      new PIDController(3.0, 0.0, 0.0), // Rotation controller
+      new PIDController(2.0, 0.0, 0.0) // Cross-track controller
+      );
 
   /* The SysId routine to test */
   private SysIdRoutine m_sysIdRoutineToApply = m_sysIdRoutineTranslation;
@@ -289,5 +301,10 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
       }
     }
     return 0.0;
+  }
+
+  public boolean inAllianceZone() {
+    var pose = getEstimatedPose();
+    return pose.getX() < 2.75 || pose.getX() > 16.540988 - 2.75;
   }
 }

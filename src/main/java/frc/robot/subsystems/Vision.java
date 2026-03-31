@@ -135,7 +135,7 @@ public class Vision extends SubsystemBase {
     private Optional<Matrix<N3, N3>> cameraMatrix;
     private Optional<Matrix<N8, N1>> distCoeff;
 
-    private static final double enabledXyStd = 0.1;
+    private static final double enabledXyStd = 0.075;
     private static final double enabledAngStd = 0.1;
     private static final double disabledXyStd = 0.4;
     private static final double disabledAngStd = 0.14;
@@ -222,7 +222,7 @@ public class Vision extends SubsystemBase {
         angStd = angStd * distance * distance;
 
         if (!RobotState.isDisabled()) {
-          angStd = Double.MAX_VALUE;
+          angStd = 0.3;
         }
 
         if (true) {

@@ -11,9 +11,15 @@
           }
         },
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "Left Neutral Intake to Bump Shot"
+            "name": "LeftBump"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "leftReturn"
           }
         },
         {
@@ -29,16 +35,10 @@
               {
                 "type": "wait",
                 "data": {
-                  "waitTime": 4.0
+                  "waitTime": 2.5
                 }
               }
             ]
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Left Bump Shot to Trench"
           }
         },
         {
@@ -48,12 +48,6 @@
           }
         },
         {
-          "type": "path",
-          "data": {
-            "pathName": "Left 2nd Sweep to Trench Shot"
-          }
-        },
-        {
           "type": "race",
           "data": {
             "commands": [
@@ -66,7 +60,7 @@
               {
                 "type": "wait",
                 "data": {
-                  "waitTime": 4.0
+                  "waitTime": 1.0
                 }
               }
             ]

@@ -8,32 +8,27 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.605989408418374,
-        "y": 7.160195360664835
+        "x": 2.740566620018792,
+        "y": 7.030498175947823
       },
       "isLocked": false,
       "linkedName": "Left Bump Shot"
     },
     {
       "anchor": {
-        "x": 3.2498002853067045,
-        "y": 7.41845934379458
+        "x": 3.198045649072753,
+        "y": 7.525
       },
       "prevControl": {
-        "x": 3.042946554006936,
-        "y": 7.278061573700596
+        "x": 3.1870635267183762,
+        "y": 6.9342504135211325
       },
       "nextControl": null,
       "isLocked": false,
       "linkedName": "Left Trench Shot"
     }
   ],
-  "rotationTargets": [
-    {
-      "waypointRelativePos": 0.6,
-      "rotationDegrees": -90.0
-    }
-  ],
+  "rotationTargets": [],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [

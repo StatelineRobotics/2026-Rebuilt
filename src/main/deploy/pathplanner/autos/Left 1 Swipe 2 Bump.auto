@@ -21,12 +21,6 @@
           "data": {
             "name": "leftReturn"
           }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "leftReturn"
-          }
         }
       ]
     }
