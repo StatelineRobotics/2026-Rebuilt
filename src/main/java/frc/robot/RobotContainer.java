@@ -36,11 +36,11 @@ import frc.robot.subsystems.Vision;
 public class RobotContainer {
   private double MaxSpeed =
       1.0 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
-  private double shootingMaxSpeed = MaxSpeed * 0.1;
+  private double shootingMaxSpeed = MaxSpeed * 0.2;
   private double currentMax = MaxSpeed;
   private double MaxAngularRate =
       RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
-  private double shootingMaxRotation = MaxAngularRate * 0.2;
+  private double shootingMaxRotation = MaxAngularRate * 0.3;
   private double currentMaxRotation = MaxAngularRate;
 
   /* Setting up bindings for necessary control of the swerve drive platform */
@@ -137,6 +137,7 @@ public class RobotContainer {
     joystick.rightBumper().whileTrue(indexer.reverseIndexer()).whileFalse(indexer.idleCommand());
 
     joystick.a().whileTrue(intake.agitate()).onFalse(intake.deployCommand());
+    joystick.y().onTrue(intake.storeCommand());
 
     // Reset the field-centric heading on left bumper press.
     // joystick.a().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
@@ -170,7 +171,11 @@ public class RobotContainer {
                 drivetrain.pathBuilder.build(returnPath),
                 () -> sideChosser.getSelected() == "Right")
             .until(drivetrain::inAllianceZone));
-    NamedCommands.registerCommand("leftReturn", tagger.navigateToTrenchShot());
+    NamedCommands.registerCommand(
+        "leftReturn",
+        tagger.navigateToTrenchShot()
+            .beforeStarting(() -> drivetrain.resetPose = true)
+            .raceWith(getShootCommand().asProxy()));
     new EventTrigger("runIntake").onTrue(intake.intakeCommand().asProxy());
     new EventTrigger("shoot").whileTrue(getShootCommand().asProxy());
   }

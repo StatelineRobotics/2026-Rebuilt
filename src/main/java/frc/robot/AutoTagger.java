@@ -33,7 +33,7 @@ public class AutoTagger {
   private SendableChooser<Command> tagChooser = new SendableChooser<>();
 
   public PathConstraints constraints =
-      new PathConstraints(2.5, 3.0, Units.degreesToRadians(540), Units.degreesToRadians(720));
+      new PathConstraints(1.5, 1.0, Units.degreesToRadians(540), Units.degreesToRadians(720));
   public PathConstraints sotmConstraints =
       new PathConstraints(1.0, 0.5, Units.degreesToRadians(0), Units.degreesToRadians(0));
 

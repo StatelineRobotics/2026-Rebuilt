@@ -224,10 +224,11 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
       });
     }
 
-    if (getMaxPigionRollPitch() > 0.015) {
+    if (getMaxPigionRollPitch() > 2.0) {
       resetPose = true;
-    } else {
       okToReset = false;
+    } else {
+      okToReset = true;
     }
   }
 
@@ -296,8 +297,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
   public double getMaxPigionRollPitch() {
     return Math.max(
-        getPigeon2().getPitch(false).getValueAsDouble(),
-        getPigeon2().getRoll(false).getValueAsDouble());
+        getPigeon2().getPitch().getValueAsDouble(),
+        getPigeon2().getRoll().getValueAsDouble());
   }
 
   public double getTrenchOffset(boolean ignorePID) {
@@ -322,6 +323,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
   public boolean inAllianceZone() {
     var pose = getEstimatedPose();
-    return pose.getX() < 2.75 || pose.getX() > 16.540988 - 2.75;
+    return pose.getX() < 2.85 || pose.getX() > 16.540988 - 2.85;
   }
 }

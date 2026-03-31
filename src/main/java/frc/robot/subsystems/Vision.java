@@ -69,7 +69,7 @@ public class Vision extends SubsystemBase {
 
   private Camera rightCamera = new Camera(
       "RightCam",
-      new Transform3d(-0.378, -0.238, 0.267, new Rotation3d(0.0, Math.toRadians(-15), Math.toRadians(-90.0))),
+      new Transform3d(-0.178, -0.368, 0.267, new Rotation3d(0.0, Math.toRadians(-15), Math.toRadians(-90.0))),
       visionSim,
       useSim);
 
