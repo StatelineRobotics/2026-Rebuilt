@@ -33,9 +33,9 @@ public class AutoTagger {
   private SendableChooser<Command> tagChooser = new SendableChooser<>();
 
   public PathConstraints constraints =
-      new PathConstraints(1.5, 1.0, Units.degreesToRadians(540), Units.degreesToRadians(720));
-  public PathConstraints sotmConstraints =
-      new PathConstraints(1.0, 0.5, Units.degreesToRadians(0), Units.degreesToRadians(0));
+      new PathConstraints(3.0, 3.0, Units.degreesToRadians(540), Units.degreesToRadians(720));
+  public PathConstraints crossConstraints =
+      new PathConstraints(1.5, 1.0, Units.degreesToRadians(600), Units.degreesToRadians(720));
 
   public PathPlannerPath leftBump;
   public PathPlannerPath leftStart;
@@ -98,20 +98,14 @@ public class AutoTagger {
         .withName("HumanTag");
   }
 
-  private Command flippingPathFollowingCommand(PathPlannerPath path) {
-    return new ConditionalCommand(
-        AutoBuilder.pathfindThenFollowPath(humanPath.mirrorPath(), constraints),
-        AutoBuilder.pathfindThenFollowPath(humanPath, constraints),
-        shouldMirror);
-  }
-
   private Command getLeftZone() {
-    return AutoBuilder.pathfindToPose(leftStart.getStartingHolonomicPose().get(), constraints);
+    return AutoBuilder.pathfindToPoseFlipped(
+        leftStart.getStartingHolonomicPose().get(), crossConstraints);
   }
 
   private Command getRightZone() {
-    return AutoBuilder.pathfindToPose(
-        leftStart.mirrorPath().getStartingHolonomicPose().get(), constraints);
+    return AutoBuilder.pathfindToPoseFlipped(
+        leftStart.mirrorPath().getStartingHolonomicPose().get(), crossConstraints);
   }
 
   public Command navigateToTrenchShot() {

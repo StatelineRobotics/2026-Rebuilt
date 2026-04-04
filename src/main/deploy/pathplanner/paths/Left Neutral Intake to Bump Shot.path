@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 8.127674750356633,
-        "y": 5.283580599144081
+        "x": 7.96,
+        "y": 5.284
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.342624821683308,
-        "y": 5.565977175463623
+        "x": 7.174950071326675,
+        "y": 5.566396576319542
       },
       "isLocked": false,
       "linkedName": "Left Neutral Zone Intake"

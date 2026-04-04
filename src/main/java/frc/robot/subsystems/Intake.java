@@ -23,6 +23,8 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkFlexConfig;
 import edu.wpi.first.epilogue.Logged;
+import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -46,19 +48,23 @@ public class Intake extends SubsystemBase {
   private NeutralOut neutralRequest = new NeutralOut();
   private VoltageOut voltageRequest = new VoltageOut(0);
 
-  private static final double pivotRatio = 25.0 * (60.0 / 24.0) * 0.5; // planetary * gears * chain
+  private static final double pivotRatio = 1.0 / (16.0 * (60.0 / 24.0) * 2); // planetary * gears * chain
 
-  private static final double storePosition = 0.2;
+  private static final double storePosition = 0.195;
   private static final double intakePosition = -0.18;
-  private static final double deployPosition = 0.0;
+  private static final double deployPosition = 0.03;
 
   private final Alert absoluteEncoderAlert = new Alert("Intake Not Start In Expected Position", AlertType.kWarning);
   private boolean lastUseValue = false;
 
   private SparkFlexConfig otfConfig = new SparkFlexConfig();
 
+  private NetworkTableEntry intakeOffset = NetworkTableInstance.getDefault().getEntry("/adjustments/intakeOffset");
   /** Creates a new Intake. */
   public Intake() {
+    intakeOffset.getTopic().genericPublish("double");
+    intakeOffset.getTopic().setPersistent(true);
+
     SparkFlexConfig pivotConfig = new SparkFlexConfig();
     pivotConfig.idleMode(IdleMode.kCoast).inverted(false).smartCurrentLimit(20);
     pivotConfig.encoder.positionConversionFactor(pivotRatio).velocityConversionFactor(pivotRatio);
@@ -165,11 +171,12 @@ public class Intake extends SubsystemBase {
   public Command intakeCommand() {
     return startRun(
         () -> {
-          pivotController.setSetpoint(intakePosition, ControlType.kPosition);
-          rollerMotor.setControl(voltageRequest.withOutput(6.0));
+          rollerMotor.setControl(voltageRequest.withOutput(7.0));
           lowerRollerMotor.setControl(voltageRequest.withOutput(7.0));
         },
-        () -> {});
+        () -> {
+          pivotController.setSetpoint(intakePosition + intakeOffset.getDouble(0.0), ControlType.kPosition);
+        });
   }
 
   public Command reverseIntake() {

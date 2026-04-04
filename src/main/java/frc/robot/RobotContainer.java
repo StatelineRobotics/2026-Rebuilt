@@ -14,12 +14,13 @@ import com.pathplanner.lib.events.EventTrigger;
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import frc.robot.Util.MirroringAutoBuilder;
@@ -137,7 +138,10 @@ public class RobotContainer {
     joystick.rightBumper().whileTrue(indexer.reverseIndexer()).whileFalse(indexer.idleCommand());
 
     joystick.a().whileTrue(intake.agitate()).onFalse(intake.deployCommand());
-    joystick.y().onTrue(intake.storeCommand());
+    joystick.y()
+        .onTrue(Commands.waitUntil(launcher::turretReady)
+            .andThen(intake.storeCommand())
+            .alongWith(launcher.everythingToZeroForReal()));
 
     // Reset the field-centric heading on left bumper press.
     // joystick.a().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
@@ -156,6 +160,10 @@ public class RobotContainer {
     Path returnPath = new Path("Left Bump Return");
     Path mirrorReturnPath = new Path("Left Bump Return");
     mirrorReturnPath.mirror();
+    drivetrain
+        .pathBuilder
+        .withShouldFlip(() -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red)
+        .withShouldMirror(() -> sideChosser.getSelected() == "Right");
 
     NamedCommands.registerCommand(
         "runShooter",
@@ -165,17 +173,13 @@ public class RobotContainer {
             .asProxy());
     NamedCommands.registerCommand("runIntake", intake.intakeCommand().asProxy());
     NamedCommands.registerCommand(
-        "LeftBump",
-        new ConditionalCommand(
-                drivetrain.pathBuilder.build(mirrorReturnPath),
-                drivetrain.pathBuilder.build(returnPath),
-                () -> sideChosser.getSelected() == "Right")
-            .until(drivetrain::inAllianceZone));
+        "LeftBump", drivetrain.pathBuilder.build(returnPath).until(drivetrain::inAllianceZone));
     NamedCommands.registerCommand(
         "leftReturn",
         tagger.navigateToTrenchShot()
             .beforeStarting(() -> drivetrain.resetPose = true)
-            .raceWith(getShootCommand().asProxy()));
+            .raceWith(Commands.waitSeconds(1.25)
+                .andThen(getShootCommand().asProxy())));
     new EventTrigger("runIntake").onTrue(intake.intakeCommand().asProxy());
     new EventTrigger("shoot").whileTrue(getShootCommand().asProxy());
   }

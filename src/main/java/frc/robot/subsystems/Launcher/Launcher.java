@@ -26,7 +26,7 @@ public class Launcher extends SubsystemBase {
 
   public final Flywheel flywheel = new Flywheel();
   private final Hood hood = new Hood();
-  private final Turret turret = new Turret();
+  public final Turret turret = new Turret();
   private CommandSwerveDrivetrain drivetrain;
 
   private ShootingSolution bestShootingSolution = new ShootingSolution(Degrees.of(0), Degrees.of(0), 0);
@@ -113,6 +113,12 @@ public class Launcher extends SubsystemBase {
         .withName("Run to zero");
   }
 
+  public Command everythingToZeroForReal() {
+    return expose(flywheel.idleCommand()
+        .alongWith(hood.targetAngle(() -> Rotation.of(0.0)))
+        .alongWith(turret.targetAngle(() -> Rotation.of(0.0))));
+  }
+
   public Command targetHub() {
     return expose(targetBest()).withName("TargetHub");
   }
@@ -148,5 +154,9 @@ public class Launcher extends SubsystemBase {
     return new Pose2d(
         robotPose.getTranslation().plus(turretOffset.rotateBy(robotPose.getRotation())),
         robotPose.getRotation());
+  }
+
+  public boolean turretReady() {
+    return turret.atTarget();
   }
 }
