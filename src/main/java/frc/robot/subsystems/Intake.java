@@ -51,8 +51,8 @@ public class Intake extends SubsystemBase {
   private static final double pivotRatio = 1.0 / (16.0 * (60.0 / 24.0) * 2); // planetary * gears * chain
 
   private static final double storePosition = 0.195;
-  private static final double intakePosition = -0.18;
-  private static final double deployPosition = 0.03;
+  private static final double intakePosition = -0.15;
+  private static final double deployPosition = 0.06;
 
   private final Alert absoluteEncoderAlert = new Alert("Intake Not Start In Expected Position", AlertType.kWarning);
   private boolean lastUseValue = false;
