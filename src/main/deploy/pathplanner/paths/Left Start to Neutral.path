@@ -36,12 +36,28 @@
         "y": 5.284
       },
       "prevControl": {
-        "x": 7.837898876404496,
-        "y": 7.118382022471909
+        "x": 8.004488315996012,
+        "y": 7.120996213850049
+      },
+      "nextControl": {
+        "x": 7.942587850531074,
+        "y": 5.034109904077312
+      },
+      "isLocked": false,
+      "linkedName": "Left Neutral Zone Intake"
+    },
+    {
+      "anchor": {
+        "x": 6.536219686162624,
+        "y": 5.477660485021398
+      },
+      "prevControl": {
+        "x": 7.23490727532097,
+        "y": 5.2059486447931524
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Left Neutral Zone Intake"
+      "linkedName": null
     }
   ],
   "rotationTargets": [],
@@ -51,7 +67,7 @@
       "minWaypointRelativePos": 1.523295070898028,
       "maxWaypointRelativePos": 2.0,
       "constraints": {
-        "maxVelocity": 1.75,
+        "maxVelocity": 2.0,
         "maxAcceleration": 3.0,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 720.0,
@@ -83,7 +99,7 @@
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 0,
+    "velocity": 2.0,
     "rotation": -90.0
   },
   "reversed": false,

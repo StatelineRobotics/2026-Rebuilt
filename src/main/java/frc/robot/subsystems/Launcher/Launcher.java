@@ -38,7 +38,9 @@ public class Launcher extends SubsystemBase {
   private boolean currentlyShooting = false;
   private Pose2d mostRecentTarget = new Pose2d();
   private Pose2d[] intermediateTargets = new Pose2d[20];
+  private double[] tofDifferences = new double[20];
   private double distance = 0.0;
+  private Pose2d recentPerp = new Pose2d();
 
   // private LinearFilter distanceFilter = LinearFilter.movingAverage(20);
 
@@ -57,7 +59,7 @@ public class Launcher extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    distance = getTurretPose().getTranslation().getDistance(ShotCalculator.blueHubPose);
+    distance = getTurretPose().getTranslation().getDistance(ShotCalculator.blueRightPass);
 
     var velocity = drivetrain.getFieldReletiveVelocity();
     bestShootingSolution = getBestShootingSolution(getTurretPose(), velocity);
@@ -81,6 +83,7 @@ public class Launcher extends SubsystemBase {
   }
 
   private ShootingSolution getBestShootingSolution(Pose2d turretPose, ChassisSpeeds robotSpeeds) {
+    recentPerp = new Pose2d(getTurretPose().getTranslation(), ShotCalculator.recentPerpVector.getAngle());
     if (DriverStation.getAlliance().orElseGet(() -> Alliance.Blue) == Alliance.Blue) {
       if (turretPose.getX() < 4.625594) {
         return currentlyShooting

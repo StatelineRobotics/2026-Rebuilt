@@ -24,18 +24,22 @@ import frc.robot.Util.ExtrapolatingDoubleTreeMap;
 public class ShotCalculator {
   private static final Translation2d redHubPose = new Translation2d(11.915394, 4.021328);
   public static final Translation2d blueHubPose = new Translation2d(4.625594, 4.021328);
-  private static final Translation2d blueRightPass = new Translation2d(0.5, 2.0);
+  public static final Translation2d blueRightPass = new Translation2d(0.5, 2.0);
   private static final Translation2d blueLeftPass = new Translation2d(0.5, 6);
   private static final Translation2d redRightPass = new Translation2d(15, 2.0);
   private static final Translation2d redLeftPass = new Translation2d(15, 6.0);
   public static Pose2d mostRecentTarget = new Pose2d();
 
-  private static Translation2d turretPerpVector =
-      new Translation2d(-Launcher.turretOffset.getY(), Launcher.turretOffset.getX());
+  // Normalized vector perpendicular to vector from center of robot to turret
+  private static Translation2d turretPerpVector = new Translation2d(
+      -Launcher.turretOffset.getY() / Launcher.turretOffset.getNorm(),
+      Launcher.turretOffset.getX() / Launcher.turretOffset.getNorm());
+  public static Translation2d recentPerpVector = turretPerpVector;
 
   private static Translation2d targetPose = Translation2d.kZero;
   private static final int NumItterations = 20;
   public static final Pose2d[] intermediateTargets = new Pose2d[NumItterations];
+  public static final double[] tofDifference = new double[NumItterations];
 
   private static final NetworkTableEntry tofMult =
       NetworkTableInstance.getDefault().getEntry("/adjustments/tofMult");
@@ -92,6 +96,29 @@ public class ShotCalculator {
     flywheelMap.put(8.0, 93.0);
   }
 
+  private static InterpolatingDoubleTreeMap passHoodMap = new InterpolatingDoubleTreeMap();
+
+  static {
+    passHoodMap.put(5.5, 40.0);
+    passHoodMap.put(7.0, 40.0);
+    passHoodMap.put(7.5, 42.0);
+    passHoodMap.put(8.5, 48.0);
+    passHoodMap.put(20.0, 48.0);
+  }
+
+  private static InterpolatingDoubleTreeMap passFlywheelMap = new InterpolatingDoubleTreeMap();
+
+  static {
+    passFlywheelMap.put(5.5, 75.0);
+    passFlywheelMap.put(6.0, 80.0);
+    passFlywheelMap.put(7.0, 88.0);
+    passFlywheelMap.put(7.5, 88.0);
+    passFlywheelMap.put(8.5, 92.0);
+    passFlywheelMap.put(9.5, 100.0);
+    passFlywheelMap.put(10.5, 115.0);
+    passFlywheelMap.put(20.0, 115.0);
+  }
+
   public static double getFlywheelSpeed(double distance) {
     return flywheelMap.get(distance);
   }
@@ -135,7 +162,7 @@ public class ShotCalculator {
     Angle turretAngle =
         difference.getAngle().minus(turretPose.getRotation()).getMeasure();
 
-    return new ShootingSolution(turretAngle, Degrees.of(hoodMap.get(distance)), flywheelMap.get(distance));
+    return new ShootingSolution(turretAngle, Degrees.of(passHoodMap.get(distance)), passFlywheelMap.get(distance));
   }
 
   public static ShootingSolution getSOTMhubSolution(Pose2d turretPose, ChassisSpeeds robotVelocity) {
@@ -145,28 +172,30 @@ public class ShotCalculator {
       targetPose = redHubPose;
     }
 
-    var rotLinearVelocity = turretPerpVector;
-    if (true) {
-      var adjPerp = turretPerpVector.rotateBy(turretPose.getRotation());
-      rotLinearVelocity = adjPerp.times(robotVelocity.omegaRadiansPerSecond * Launcher.turretOffset.getNorm());
-    }
+    Translation2d currentTurretVector = turretPerpVector.rotateBy(turretPose.getRotation());
+    recentPerpVector = currentTurretVector;
+    Translation2d rotLinearVelocity =
+        currentTurretVector.times(robotVelocity.omegaRadiansPerSecond * Launcher.turretOffset.getNorm());
 
     Translation2d launcherPosition = turretPose.getTranslation();
-    double launcherToTargetDistance = targetPose.getDistance(launcherPosition);
+    double lookaheadLauncherToTargetDistance = targetPose.getDistance(launcherPosition);
 
-    double timeOfFlight = tofMap.get(launcherToTargetDistance);
+    double lastTOF = 0.0;
+    double timeOfFlight = tofMap.get(lookaheadLauncherToTargetDistance);
+    double tofDifference = Math.abs(timeOfFlight - lastTOF);
     Translation2d lookaheadPose = targetPose;
-    double lookaheadLauncherToTargetDistance = launcherToTargetDistance;
 
     // Itterate shot projection to hopefully converge on correct shot
-    for (int i = 0; i < NumItterations; i++) {
-      timeOfFlight = tofMap.get(launcherToTargetDistance);
+    for (int i = 0; i < NumItterations || tofDifference < 1.0 / 1000.0; i++) {
+      timeOfFlight = tofMap.get(lookaheadLauncherToTargetDistance);
       timeOfFlight = timeOfFlight * tofMult.getDouble(1.0) + tofAdd.getDouble(0.0);
       double offsetX = (robotVelocity.vxMetersPerSecond + rotLinearVelocity.getX()) * timeOfFlight;
       double offsetY = (robotVelocity.vyMetersPerSecond + rotLinearVelocity.getY()) * timeOfFlight;
       lookaheadPose = targetPose.minus(new Translation2d(offsetX, offsetY));
       intermediateTargets[i] = new Pose2d(lookaheadPose, Rotation2d.kZero);
       lookaheadLauncherToTargetDistance = launcherPosition.getDistance(lookaheadPose);
+      lastTOF = timeOfFlight;
+      tofDifference = Math.abs(timeOfFlight - lastTOF);
     }
 
     targetPose = lookaheadPose;

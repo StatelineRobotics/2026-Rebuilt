@@ -54,7 +54,7 @@ class Hood extends SubsystemBase {
 
   private static final double motorToHoodRatio = (46.0 / 16.0) * (162.0 / 20.0); // 2.875 * 8.1 = 23.2875
   private static final Angle hoodMin = Degree.of(15.0);
-  private static final Angle hoodMax = Degree.of(40.0);
+  private static final Angle hoodMax = Degree.of(48.0);
 
   private NetworkTableEntry hoodEntry = NetworkTableInstance.getDefault().getEntry("/tuning/hoodTarget");
   private NetworkTableEntry hoodOffset = NetworkTableInstance.getDefault().getEntry("/adjustments/hoodOffset");
@@ -75,15 +75,15 @@ class Hood extends SubsystemBase {
         .CurrentLimits
         .withStatorCurrentLimitEnable(true)
         .withSupplyCurrentLimitEnable(true)
-        .withStatorCurrentLimit(40)
-        .withSupplyCurrentLimit(10);
+        .withStatorCurrentLimit(60)
+        .withSupplyCurrentLimit(20);
     hoodConfig
         .SoftwareLimitSwitch
         .withForwardSoftLimitEnable(true)
         .withReverseSoftLimitEnable(true)
         .withForwardSoftLimitThreshold(hoodMax)
         .withReverseSoftLimitThreshold(hoodMin);
-    hoodConfig.Slot0.withKP(110.0).withKD(0.0).withKS(0.38).withKV(0.0).withKG(0.0);
+    hoodConfig.Slot0.withKP(120.0).withKD(0.0).withKS(0.38).withKV(0.0).withKG(0.0);
 
     hoodMotor.getConfigurator().apply(hoodConfig);
     hoodMotor.setPosition(Degrees.of(15));

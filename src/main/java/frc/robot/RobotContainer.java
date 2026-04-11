@@ -48,7 +48,7 @@ public class RobotContainer {
   private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
       .withDeadband(MaxSpeed * 0.001)
       .withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
-      .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
+      .withDriveRequestType(DriveRequestType.Velocity); // Use open-loop control for drive motors
   private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
   private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
 
@@ -87,6 +87,10 @@ public class RobotContainer {
     SmartDashboard.putNumber("Auto Delay", 0.0);
     SmartDashboard.putData("Auto Tag", tagger.getChosser());
     SmartDashboard.putData("testLauncher", launcher.testCommand().alongWith(indexer.runIndexer()));
+    SmartDashboard.putData(
+        "Target Dashboard",
+        launcher.targetDashboard()
+            .alongWith(Commands.waitUntil(launcher.launcherReady).andThen(indexer.antiJamRun())));
 
     FollowPath.setPoseLoggingConsumer((pair) -> blinePose = pair.getSecond());
 
