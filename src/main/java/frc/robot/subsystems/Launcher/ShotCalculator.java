@@ -186,7 +186,7 @@ public class ShotCalculator {
     Translation2d lookaheadPose = targetPose;
 
     // Itterate shot projection to hopefully converge on correct shot
-    for (int i = 0; i < NumItterations || tofDifference < 1.0 / 1000.0; i++) {
+    for (int i = 0; i < NumItterations && tofDifference < 1.0 / 1000.0; i++) {
       timeOfFlight = tofMap.get(lookaheadLauncherToTargetDistance);
       timeOfFlight = timeOfFlight * tofMult.getDouble(1.0) + tofAdd.getDouble(0.0);
       double offsetX = (robotVelocity.vxMetersPerSecond + rotLinearVelocity.getX()) * timeOfFlight;

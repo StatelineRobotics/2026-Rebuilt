@@ -104,7 +104,7 @@ class Hood extends SubsystemBase {
   }
 
   private boolean isStalled() {
-    return velocitySignal.getValueAsDouble() < 1.0 && statorCurrentSignal.getValueAsDouble() > 20.0;
+    return velocitySignal.getValueAsDouble() < 1.0 && statorCurrentSignal.getValueAsDouble() > 50.0;
   }
 
   public boolean atTarget() {

@@ -323,6 +323,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
   public boolean inAllianceZone() {
     var pose = getEstimatedPose();
-    return pose.getX() < 2.85 || pose.getX() > 16.540988 - 2.85;
+    return pose.getX() < 3.0 || pose.getX() > 16.540988 - 3.0;
   }
 }
