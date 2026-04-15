@@ -2,6 +2,8 @@ package frc.robot.Util;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathPlannerPath;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -14,11 +16,13 @@ public class LoadedPath {
   private Alert pathAlert;
   private String pathName = "";
   public boolean pathAvalible = false;
+  public Pose2d startingPose = new Pose2d(1, 1, Rotation2d.kCCW_90deg);
 
-  public LoadedPath(String name, boolean avalible, Command command) {
+  public LoadedPath(String name, boolean avalible, Command command, Pose2d startPose) {
     pathName = name;
     pathAvalible = avalible;
     pathCommand = command;
+    startingPose = startPose;
     pathAlert = new Alert(pathName + " FAILED to load", AlertType.kWarning);
     pathAlert.set(!avalible);
   }
@@ -41,32 +45,40 @@ public class LoadedPath {
   public static LoadedPath pathplannerPath(String name) {
     try {
       PathPlannerPath path = PathPlannerPath.fromPathFile(name);
-      return new LoadedPath(name, true, AutoBuilder.followPath(path));
+      return new LoadedPath(
+          name,
+          true,
+          AutoBuilder.followPath(path),
+          path.getStartingHolonomicPose().get());
     } catch (Exception e) {
       return new LoadedPath(name, false);
     }
   }
 
-    public static LoadedPath bLinePath(String name, Builder builder) {
-        try {
-            Path path = new Path(name);
-            return new LoadedPath(name, true, builder.build(path));
-        } catch (Exception e) {
-            return new LoadedPath(name, true);
-        }
+  public static LoadedPath bLinePath(String name, Builder builder) {
+    try {
+      Path path = new Path(name);
+      return new LoadedPath(name, true, builder.build(path), path.getStartPose());
+    } catch (Exception e) {
+      return new LoadedPath(name, true);
     }
+  }
 
-    public static LoadedPath buildAny(String name, Builder builder) {
-        try {
-            PathPlannerPath path = PathPlannerPath.fromPathFile(name);
-            return new LoadedPath(name, true, AutoBuilder.followPath(path));
-        } catch (Exception e) {
-            try {
-                Path path = new Path(name);
-                return new LoadedPath(name, true, builder.build(path));
-            } catch (Exception f) {
-                return new LoadedPath(name, true);
-            }
-        }
+  public static LoadedPath tryAll(String name, Builder builder) {
+    try {
+      PathPlannerPath path = PathPlannerPath.fromPathFile(name);
+      return new LoadedPath(
+          name,
+          true,
+          AutoBuilder.followPath(path),
+          path.getStartingHolonomicPose().get());
+    } catch (Exception e) {
+      try {
+        Path path = new Path(name);
+        return new LoadedPath(name, true, builder.build(path), path.getStartPose());
+      } catch (Exception f) {
+        return new LoadedPath(name, true);
+      }
     }
+  }
 }

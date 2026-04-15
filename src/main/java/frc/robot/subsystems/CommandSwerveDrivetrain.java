@@ -25,6 +25,8 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -112,16 +114,20 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
   public boolean resetPose = false;
   public boolean okToReset = false;
+  private final SendableChooser<String> sideChosser = new SendableChooser<String>();
   public FollowPath.Builder pathBuilder = new FollowPath.Builder(
-      this, // Subsystem requirement
-      this::getEstimatedPose, // Current pose supplier
-      this::getEstimatedVelocity, // Current speeds supplier
-      (speeds) -> setControl(
-          m_pathApplyRobotSpeeds.withSpeeds(ChassisSpeeds.discretize(speeds, 0.020))), // Drive consumer
-      new PIDController(5.0, 0.0, 0.0), // Translation controller
-      new PIDController(3.0, 0.0, 0.0), // Rotation controller
-      new PIDController(2.0, 0.0, 0.0) // Cross-track controller
-      );
+          this, // Subsystem requirement
+          this::getEstimatedPose, // Current pose supplier
+          this::getEstimatedVelocity, // Current speeds supplier
+          (speeds) -> setControl(m_pathApplyRobotSpeeds.withSpeeds(
+              ChassisSpeeds.discretize(speeds, 0.020))), // Drive consumer
+          new PIDController(5.0, 0.0, 0.0), // Translation controller
+          new PIDController(3.0, 0.0, 0.0), // Rotation controller
+          new PIDController(2.0, 0.0, 0.0) // Cross-track controller
+          )
+      .withShouldFlip(() -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red)
+      .withShouldMirror(() -> sideChosser.getSelected() == "Right");
+  ;
 
   /* The SysId routine to test */
   private SysIdRoutine m_sysIdRoutineToApply = m_sysIdRoutineTranslation;
@@ -146,6 +152,9 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
   }
 
   private void configureAutoBuilder() {
+    sideChosser.setDefaultOption("Left", "Left");
+    sideChosser.addOption("Right", "Right");
+    SmartDashboard.putData("Side Selection", sideChosser);
     try {
       var config = RobotConfig.fromGUISettings();
       AutoBuilder.configure(

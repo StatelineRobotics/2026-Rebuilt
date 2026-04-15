@@ -15,15 +15,13 @@ import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
-import frc.robot.Util.MirroringAutoBuilder;
+import frc.robot.Util.AutoOrchestrator;
 import frc.robot.generated.TunerConstants;
 import frc.robot.lib.BLine.FollowPath;
 import frc.robot.lib.BLine.Path;
@@ -64,28 +62,17 @@ public class RobotContainer {
   public final Indexer indexer = new Indexer();
   public final Vision vision = new Vision(drivetrain, () -> pose);
 
-  private final SendableChooser<Command> autoChooser;
-  private final SendableChooser<String> sideChosser = new SendableChooser<String>();
+  // private final SendableChooser<Command> autoChooser;
 
-  public final AutoTagger tagger = new AutoTagger(
-      drivetrain, () -> sideChosser.getSelected() == "Right", getShootCommand(), intake.autoAgitate());
+  //   public final AutoTagger tagger = new AutoTagger(
+  //       drivetrain, () -> sideChosser.getSelected() == "Right", getShootCommand(), intake.autoAgitate());
+  AutoCommands autoCommands = new AutoCommands(drivetrain, launcher, intake, indexer);
+  public final AutoOrchestrator orchestrator = new AutoOrchestrator(drivetrain.pathBuilder, autoCommands);
 
   Pose2d blinePose = new Pose2d();
 
   public RobotContainer() {
 
-    doNamedCommands();
-    sideChosser.setDefaultOption("Left", "Left");
-    sideChosser.addOption("Right", "Right");
-    autoChooser = MirroringAutoBuilder.buildAutoChooserWithOptionsModifier(
-        "",
-        () -> sideChosser.getSelected() == "Right",
-        (stream) -> true ? stream.filter(auto -> auto.getName().startsWith("COMP")) : stream);
-
-    SmartDashboard.putData("Auto Mode", autoChooser);
-    SmartDashboard.putData("Start Side", sideChosser);
-    SmartDashboard.putNumber("Auto Delay", 0.0);
-    SmartDashboard.putData("Auto Tag", tagger.getChosser());
     SmartDashboard.putData("testLauncher", launcher.testCommand().alongWith(indexer.runIndexer()));
     SmartDashboard.putData(
         "Target Dashboard",
@@ -160,48 +147,8 @@ public class RobotContainer {
     drivetrain.registerTelemetry(logger::telemeterize);
   }
 
-  public void doNamedCommands() {
-    Path returnPath = new Path("Left Bump Return");
-    Path mirrorReturnPath = new Path("Left Bump Return");
-    mirrorReturnPath.mirror();
-    drivetrain
-        .pathBuilder
-        .withShouldFlip(() -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red)
-        .withShouldMirror(() -> sideChosser.getSelected() == "Right");
-    Path curvePath = new Path("left_curve");
-    FollowPath.registerEventTrigger("shoot", getShootCommand().asProxy());
-    FollowPath.registerEventTrigger(
-        "stopShoot",
-        indexer.idleCommand().alongWith(launcher.runToZero()).asProxy());
-    FollowPath.registerEventTrigger("prepShoot", launcher.targetHub().asProxy());
-
-    NamedCommands.registerCommand("blineCurve", drivetrain.pathBuilder.build(curvePath));
-    NamedCommands.registerCommand(
-        "runShooter",
-        Commands.parallel(
-                launcher.targetHub(),
-                Commands.waitUntil(launcher.launcherReady).andThen(indexer.antiJamRun()))
-            .asProxy());
-    NamedCommands.registerCommand("runIntake", intake.intakeCommand().asProxy());
-    NamedCommands.registerCommand(
-        "LeftBump", drivetrain.pathBuilder.build(returnPath).until(drivetrain::inAllianceZone));
-    NamedCommands.registerCommand(
-        "leftReturn",
-        tagger.navigateToTrenchShot()
-            .beforeStarting(() -> drivetrain.resetPose = true)
-            .raceWith(Commands.waitSeconds(1.25)
-                .andThen(getShootCommand().asProxy())));
-    new EventTrigger("runIntake").onTrue(intake.intakeCommand().asProxy());
-    new EventTrigger("shoot").whileTrue(getShootCommand().asProxy());
-  }
-
   public Command getAutonomousCommand() {
-    return // getCombinedCommand();
-    Commands.sequence(autoChooser.getSelected(), tagger.getChosser().getSelected());
-  }
-
-  public Command getCombinedCommand() {
-    return autoChooser.getSelected();
+    return orchestrator.deferEverythingAutoCommand();
   }
 
   public Command getShootCommand() {
