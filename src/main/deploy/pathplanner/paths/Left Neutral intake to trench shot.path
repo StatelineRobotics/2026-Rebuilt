@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.96,
-        "y": 5.284
+        "x": 7.90771754636234,
+        "y": 5.374151212553495
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.96,
-        "y": 7.512813636003002
+        "x": 7.90771754636234,
+        "y": 7.602964848556497
       },
       "isLocked": false,
       "linkedName": "Left Neutral Zone Intake"
@@ -64,7 +64,7 @@
   "folder": "Left Auto Paths",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -90.0
+    "rotation": -88.75463573323165
   },
   "useDefaultConstraints": false
 }

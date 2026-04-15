@@ -70,7 +70,7 @@ public class Indexer extends SubsystemBase {
     return startRun(
         () -> {
           ovalMotor.setVoltage(9.0);
-          kickerMotor.setVoltage(9.0);
+          kickerMotor.setVoltage(10.0);
         },
         () -> {});
   }

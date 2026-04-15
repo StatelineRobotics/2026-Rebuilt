@@ -168,7 +168,14 @@ public class RobotContainer {
         .pathBuilder
         .withShouldFlip(() -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red)
         .withShouldMirror(() -> sideChosser.getSelected() == "Right");
+    Path curvePath = new Path("left_curve");
+    FollowPath.registerEventTrigger("shoot", getShootCommand().asProxy());
+    FollowPath.registerEventTrigger(
+        "stopShoot",
+        indexer.idleCommand().alongWith(launcher.runToZero()).asProxy());
+    FollowPath.registerEventTrigger("prepShoot", launcher.targetHub().asProxy());
 
+    NamedCommands.registerCommand("blineCurve", drivetrain.pathBuilder.build(curvePath));
     NamedCommands.registerCommand(
         "runShooter",
         Commands.parallel(

@@ -77,7 +77,7 @@ public class Intake extends SubsystemBase {
     pivotConfig
         .closedLoop
         .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
-        .p(40.0)
+        .p(50.0)
         .d(0.2)
         .positionWrappingEnabled(false);
     pivotMotor.configure(pivotConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);

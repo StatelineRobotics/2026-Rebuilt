@@ -38,9 +38,9 @@ class Turret extends SubsystemBase {
 
   private PositionVoltage positionRequest = new PositionVoltage(0).withSlot(0);
 
-  private static final double turretZeroOffset = -0.910;
+  private static final double turretZeroOffset = -0.946289;
   private static final Angle minRotation = Rotations.of(turretZeroOffset);
-  private static final Angle maxRotation = Rotations.of(0.573);
+  private static final Angle maxRotation = Rotations.of(0.85);
   private static final double gearRatio = 3.0 * (100.0 / 10.0);
   private static final double largeEncoderTeeth = 14.0;
   private static final double smallEncoderTeeth = 13.0;
@@ -50,6 +50,9 @@ class Turret extends SubsystemBase {
 
   private NetworkTableEntry turretEntry = NetworkTableInstance.getDefault().getEntry("/tuning/turretTarget");
   private NetworkTableEntry turretOffset = NetworkTableInstance.getDefault().getEntry("/adjustments/turretOffset");
+
+  public AngularVelocity requestTargetVelocity = positionRequest.getVelocityMeasure();
+  public Angle requestTargetangle = positionRequest.getPositionMeasure();
 
   /** Creates a new Turret. */
   public Turret() {
@@ -81,13 +84,13 @@ class Turret extends SubsystemBase {
         .apply(encoderConfig
             .MagnetSensor
             .withSensorDirection(SensorDirectionValue.CounterClockwise_Positive)
-            .withMagnetOffset(-0.789794921875));
+            .withMagnetOffset(-0.821044921875));
     largeEncoder
         .getConfigurator()
         .apply(encoderConfig
             .MagnetSensor
             .withSensorDirection(SensorDirectionValue.Clockwise_Positive)
-            .withMagnetOffset(-0.090087890625));
+            .withMagnetOffset(-0.0537109375));
 
     if (Robot.isSimulation()) {
       smallEncoder.setPosition(Math.abs(turretZeroOffset) * (turretTeeth / smallEncoderTeeth) % 1.0);
@@ -102,6 +105,8 @@ class Turret extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+    requestTargetVelocity = positionRequest.getVelocityMeasure();
+    requestTargetangle = positionRequest.getPositionMeasure();
   }
 
   public Angle getRotation() {
@@ -175,9 +180,5 @@ class Turret extends SubsystemBase {
 
   private Command targetDashboardAngle() {
     return targetAngle(() -> Degrees.of(turretEntry.getDouble(0)));
-  }
-
-  protected void setDesiredVelo(AngularVelocity desiredVelo) {
-    positionRequest.withVelocity(desiredVelo);
   }
 }

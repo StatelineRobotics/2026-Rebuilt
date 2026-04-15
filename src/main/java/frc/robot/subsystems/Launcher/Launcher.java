@@ -6,9 +6,11 @@ package frc.robot.subsystems.Launcher;
 
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Rotation;
 
 import edu.wpi.first.epilogue.Logged;
+import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -42,6 +44,9 @@ public class Launcher extends SubsystemBase {
   private double distance = 0.0;
   private Pose2d recentPerp = new Pose2d();
 
+  LinearFilter veloFilter = LinearFilter.movingAverage(3);
+  double turretVelo = 0.0;
+
   // private LinearFilter distanceFilter = LinearFilter.movingAverage(20);
 
   /** Creates a new Launcher. */
@@ -63,7 +68,8 @@ public class Launcher extends SubsystemBase {
 
     var velocity = drivetrain.getFieldReletiveVelocity();
     bestShootingSolution = getBestShootingSolution(getTurretPose(), velocity);
-    // turret.setDesiredVelo(RadiansPerSecond.of(velocity.omegaRadiansPerSecond));
+
+    turretVelo = veloFilter.calculate(- +velocity.omegaRadiansPerSecond);
 
     // var estDisplacement = new Translation2d(velocity.vxMetersPerSecond * 0.02, velocity.vyMetersPerSecond *
     // 0.02);
@@ -112,7 +118,8 @@ public class Launcher extends SubsystemBase {
   public Command runToZero() {
     return expose(flywheel.idleCommand()
             .alongWith(hood.targetAngle(() -> Rotation.of(0)))
-            .alongWith(turret.targetAngle(() -> bestShootingSolution.turretAngle())))
+            .alongWith(turret.targetAngleWithVelocity(
+                () -> bestShootingSolution.turretAngle(), () -> RadiansPerSecond.of(turretVelo))))
         .withName("Run to zero");
   }
 
@@ -129,7 +136,8 @@ public class Launcher extends SubsystemBase {
   private Command targetBest() {
     return flywheel.runAtVelocity(() -> bestShootingSolution.flywheelSpeed())
         .alongWith(hood.targetAngle(() -> bestShootingSolution.hoodAngle()))
-        .alongWith(turret.targetAngle(() -> bestShootingSolution.turretAngle()))
+        .alongWith(turret.targetAngleWithVelocity(
+            () -> bestShootingSolution.turretAngle(), () -> RadiansPerSecond.of(turretVelo)))
         .alongWith(Commands.startEnd(() -> currentlyShooting = true, () -> currentlyShooting = false));
   }
 
