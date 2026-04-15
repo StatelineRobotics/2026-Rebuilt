@@ -47,12 +47,26 @@ public class LoadedPath {
     }
   }
 
-  public static LoadedPath bLinePath(Builder builder, String name) {
-    try {
-      Path path = new Path(name);
-      return new LoadedPath(name, true, builder.build(path));
-    } catch (Exception e) {
-      return new LoadedPath(name, true);
+    public static LoadedPath bLinePath(String name, Builder builder) {
+        try {
+            Path path = new Path(name);
+            return new LoadedPath(name, true, builder.build(path));
+        } catch (Exception e) {
+            return new LoadedPath(name, true);
+        }
     }
-  }
+
+    public static LoadedPath buildAny(String name, Builder builder) {
+        try {
+            PathPlannerPath path = PathPlannerPath.fromPathFile(name);
+            return new LoadedPath(name, true, AutoBuilder.followPath(path));
+        } catch (Exception e) {
+            try {
+                Path path = new Path(name);
+                return new LoadedPath(name, true, builder.build(path));
+            } catch (Exception f) {
+                return new LoadedPath(name, true);
+            }
+        }
+    }
 }
