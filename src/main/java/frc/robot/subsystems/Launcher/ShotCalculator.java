@@ -189,8 +189,10 @@ public class ShotCalculator {
     for (int i = 0; i < NumItterations && tofDifference > 1.0 / 1000.0; i++) {
       timeOfFlight = tofMap.get(lookaheadLauncherToTargetDistance);
       timeOfFlight = timeOfFlight * tofMult.getDouble(1.0) + tofAdd.getDouble(0.0);
-      double offsetX = (robotVelocity.vxMetersPerSecond + rotLinearVelocity.getX()) * timeOfFlight;
-      double offsetY = (robotVelocity.vyMetersPerSecond + rotLinearVelocity.getY()) * timeOfFlight;
+      double offsetX =
+          (robotVelocity.vxMetersPerSecond + rotLinearVelocity.getX()) * linearDragComp(timeOfFlight);
+      double offsetY =
+          (robotVelocity.vyMetersPerSecond + rotLinearVelocity.getY()) * linearDragComp(timeOfFlight);
       lookaheadPose = targetPose.minus(new Translation2d(offsetX, offsetY));
       intermediateTargets[i] = new Pose2d(lookaheadPose, Rotation2d.kZero);
       lookaheadLauncherToTargetDistance = launcherPosition.getDistance(lookaheadPose);
@@ -207,5 +209,10 @@ public class ShotCalculator {
     // TODO: Check if shot is good (there are situations where it diverges or converges too slowly)
 
     return new ShootingSolution(turretAngle, Degrees.of(hoodMap.get(distance)), flywheelMap.get(distance));
+  }
+
+  private static double linearDragComp(double t) {
+    double k = 0.01;
+    return (1.0 - Math.exp(-k * t)) / k;
   }
 }

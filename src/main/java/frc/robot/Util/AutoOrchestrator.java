@@ -24,7 +24,9 @@ public class AutoOrchestrator {
   private SendableChooser<Command> secondStage;
   private SendableChooser<Command> thirdStage;
   // private SendableChooser<Command> tags;
-  private String[] initialPathOptions = {"trenchShort", "trenchMid", "trenchFar"};
+  private String[] initialPathOptions = {
+    "trenchShort", "trenchMid", "trenchFar", "stackedTrenchShort", "stackedTrenchMid", "stackedTrenchFar"
+  };
   private String[] secondStageOptions = {"returnBump", "returnTrench", "frontDepot", "sideDepot"};
   private String[] thirdStageOptions = {"frontDepot", "sideDepot", "CurveToTrench"};
 
