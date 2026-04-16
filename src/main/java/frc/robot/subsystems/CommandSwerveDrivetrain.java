@@ -26,7 +26,6 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -114,7 +113,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
   public boolean resetPose = false;
   public boolean okToReset = false;
-  private final SendableChooser<String> sideChosser = new SendableChooser<String>();
+  public SendableChooser<String> sideChosser;
   public FollowPath.Builder pathBuilder = new FollowPath.Builder(
           this, // Subsystem requirement
           this::getEstimatedPose, // Current pose supplier
@@ -152,9 +151,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
   }
 
   private void configureAutoBuilder() {
-    sideChosser.setDefaultOption("Left", "Left");
-    sideChosser.addOption("Right", "Right");
-    SmartDashboard.putData("Side Selection", sideChosser);
+
     try {
       var config = RobotConfig.fromGUISettings();
       AutoBuilder.configure(

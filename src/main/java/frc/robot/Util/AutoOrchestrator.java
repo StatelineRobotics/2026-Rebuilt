@@ -1,7 +1,7 @@
 package frc.robot.Util;
+
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.events.EventTrigger;
-
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -10,33 +10,40 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.AutoCommands;
 import frc.robot.lib.BLine.FollowPath;
 import frc.robot.lib.BLine.FollowPath.Builder;
+import java.util.function.BooleanSupplier;
 
 @Logged
 public class AutoOrchestrator {
-  Builder bLineBuilder;
-  AutoCommands autoCommands;
+  private Builder bLineBuilder;
+  private AutoCommands autoCommands;
+
+  private BooleanSupplier shouldMirror;
 
   private SendableChooser<Command> startOptions;
   private SendableChooser<Command> initialPath;
   private SendableChooser<Command> secondStage;
+  private SendableChooser<Command> thirdStage;
+  // private SendableChooser<Command> tags;
   private String[] initialPathOptions = {"trenchShort", "trenchMid", "trenchFar"};
   private String[] secondStageOptions = {"returnBump", "returnTrench", "frontDepot", "sideDepot"};
-  private String[] thirdStageOptions = {"frontDepot", "sideDepot"};
+  private String[] thirdStageOptions = {"frontDepot", "sideDepot", "CurveToTrench"};
 
-  public AutoOrchestrator(Builder builder, AutoCommands commands) {
+  public AutoOrchestrator(Builder builder, AutoCommands commands, BooleanSupplier mirror) {
+    shouldMirror = mirror;
     bLineBuilder = builder;
     autoCommands = commands;
+    buildAutoCommands();
     startOptions = buildInitialOptions();
     initialPath = buildResetingPathChooser("initialPath", initialPathOptions);
     secondStage = buildPathChooser("Second Stage", secondStageOptions);
+    thirdStage = buildPathChooser("Third Stage", thirdStageOptions);
+    // tags = buildTags();
     SmartDashboard.putNumber("Auto Delay", 0.0);
   }
 
-    public void doNamedCommands() {
+  public void buildAutoCommands() {
     FollowPath.registerEventTrigger("shoot", autoCommands.shoot());
-    FollowPath.registerEventTrigger(
-        "stopShoot",
-        autoCommands.stopShooting());
+    FollowPath.registerEventTrigger("stopShoot", autoCommands.stopShooting());
     FollowPath.registerEventTrigger("prepShoot", autoCommands.prepShooter());
     new EventTrigger("runIntake").onTrue(autoCommands.intake());
     new EventTrigger("shoot").whileTrue(autoCommands.shoot());
@@ -46,9 +53,12 @@ public class AutoOrchestrator {
     SendableChooser<Command> chooser = new SendableChooser<Command>();
     chooser.setDefaultOption("none", Commands.none());
     for (String name : names) {
-      LoadedPath path = LoadedPath.tryAll(name, bLineBuilder);
+      LoadedPath path = LoadedPath.tryAll(name, bLineBuilder, shouldMirror);
       if (path.pathAvalible) {
-        chooser.addOption(name, AutoBuilder.resetOdom(path.startingPose).andThen(path.getPathCommand()));
+        chooser.addOption(
+            name,
+            Commands.deferredProxy(() -> AutoBuilder.resetOdom(path.startingPose.get()))
+                .andThen(path.getPathCommand()));
       }
     }
     SmartDashboard.putData(chooserName, chooser);
@@ -59,7 +69,7 @@ public class AutoOrchestrator {
     SendableChooser<Command> chooser = new SendableChooser<Command>();
     chooser.setDefaultOption("none", Commands.none());
     for (String name : names) {
-      LoadedPath path = LoadedPath.tryAll(name, bLineBuilder);
+      LoadedPath path = LoadedPath.tryAll(name, bLineBuilder, shouldMirror);
       if (path.pathAvalible) {
         chooser.addOption(name, path.getPathCommand());
       }
@@ -84,22 +94,28 @@ public class AutoOrchestrator {
     return chooser;
   }
 
-  public SendableChooser<Command> buildTags() {
-    SendableChooser<Command> chooser = new SendableChooser<Command>();
-    chooser.setDefaultOption("None", Commands.none());
-    chooser.addOption("Shoot", autoCommands.shoot());
-    SmartDashboard.putData("Tag", chooser);
-    return chooser;
-  }
-
-  public Command getAutoCommand() {
-    return Commands.sequence(startOptions.getSelected(),
-        initialPath.getSelected(),
-        secondStage.getSelected());
-  }
+  // public SendableChooser<Command> buildTags() {
+  //   SendableChooser<Command> chooser = new SendableChooser<Command>();
+  //   chooser.setDefaultOption("None", Commands.none());
+  //   chooser.addOption("Shoot", autoCommands.shoot());
+  //   SmartDashboard.putData("Tag", chooser);
+  //   return chooser;
+  // }
 
   public Command deferEverythingAutoCommand() {
-    return deferEverything(startOptions.getSelected(), initialPath.getSelected(), secondStage.getSelected());
+    return deferEverything(
+        startOptions.getSelected(),
+        initialPath.getSelected(),
+        secondStage.getSelected(),
+        thirdStage.getSelected());
+  }
+
+  public Command getAutocommand() {
+    return Commands.sequence(
+        startOptions.getSelected(),
+        initialPath.getSelected(),
+        secondStage.getSelected(),
+        thirdStage.getSelected());
   }
 
   private Command deferEverything(Command... commands) {

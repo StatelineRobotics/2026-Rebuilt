@@ -8,13 +8,11 @@ import static edu.wpi.first.units.Units.*;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
-import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.FollowPathCommand;
-import com.pathplanner.lib.events.EventTrigger;
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -24,7 +22,6 @@ import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import frc.robot.Util.AutoOrchestrator;
 import frc.robot.generated.TunerConstants;
 import frc.robot.lib.BLine.FollowPath;
-import frc.robot.lib.BLine.Path;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.Intake;
@@ -66,12 +63,19 @@ public class RobotContainer {
 
   //   public final AutoTagger tagger = new AutoTagger(
   //       drivetrain, () -> sideChosser.getSelected() == "Right", getShootCommand(), intake.autoAgitate());
+
+  private final SendableChooser<String> sideChosser = new SendableChooser<String>();
   AutoCommands autoCommands = new AutoCommands(drivetrain, launcher, intake, indexer);
-  public final AutoOrchestrator orchestrator = new AutoOrchestrator(drivetrain.pathBuilder, autoCommands);
+  public final AutoOrchestrator orchestrator =
+      new AutoOrchestrator(drivetrain.pathBuilder, autoCommands, () -> sideChosser.getSelected() == "Right");
 
   Pose2d blinePose = new Pose2d();
 
   public RobotContainer() {
+    sideChosser.setDefaultOption("Left", "Left");
+    sideChosser.addOption("Right", "Right");
+    SmartDashboard.putData("Side Selection", sideChosser);
+    drivetrain.sideChosser = sideChosser;
 
     SmartDashboard.putData("testLauncher", launcher.testCommand().alongWith(indexer.runIndexer()));
     SmartDashboard.putData(
@@ -148,7 +152,7 @@ public class RobotContainer {
   }
 
   public Command getAutonomousCommand() {
-    return orchestrator.deferEverythingAutoCommand();
+    return orchestrator.getAutocommand();
   }
 
   public Command getShootCommand() {

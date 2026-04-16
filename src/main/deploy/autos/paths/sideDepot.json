@@ -13,14 +13,19 @@
       }
     },
     {
+      "type": "event_trigger",
+      "t_ratio": 0.0,
+      "lib_key": "shoot"
+    },
+    {
       "type": "waypoint",
       "translation_target": {
-        "x_meters": 0.4978844072946679,
+        "x_meters": 0.7480000000000002,
         "y_meters": 4.913561151079135,
         "intermediate_handoff_radius_meters": 0.45
       },
       "rotation_target": {
-        "rotation_radians": 1.5707963267948966,
+        "rotation_radians": 1.9198621771937625,
         "profiled_rotation": true
       }
     },

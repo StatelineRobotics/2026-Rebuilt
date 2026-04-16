@@ -51,7 +51,7 @@ public class Intake extends SubsystemBase {
   private static final double pivotRatio = 1.0 / (16.0 * (60.0 / 24.0) * 2); // planetary * gears * chain
 
   private static final double storePosition = 0.195;
-  private static final double intakePosition = -0.15;
+  private static final double intakePosition = -0.145;
   private static final double deployPosition = 0.06;
 
   private final Alert absoluteEncoderAlert = new Alert("Intake Not Start In Expected Position", AlertType.kWarning);
@@ -77,7 +77,7 @@ public class Intake extends SubsystemBase {
     pivotConfig
         .closedLoop
         .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
-        .p(50.0)
+        .p(40.0)
         .d(0.2)
         .positionWrappingEnabled(false);
     pivotMotor.configure(pivotConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
