@@ -69,7 +69,7 @@ public class LoadedPath {
       Path path = new Path(name);
       return new LoadedPath(name, true, builder.build(path), () -> path.getStartPose());
     } catch (Exception e) {
-      return new LoadedPath(name, true);
+      return new LoadedPath(name, false);
     }
   }
 
@@ -93,7 +93,7 @@ public class LoadedPath {
         Path path = new Path(name);
         return new LoadedPath(name, true, builder.build(path), () -> path.getStartPose());
       } catch (Exception f) {
-        return new LoadedPath(name, true);
+        return new LoadedPath(name, false);
       }
     }
   }

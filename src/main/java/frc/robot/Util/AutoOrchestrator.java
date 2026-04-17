@@ -23,12 +23,18 @@ public class AutoOrchestrator {
   private SendableChooser<Command> initialPath;
   private SendableChooser<Command> secondStage;
   private SendableChooser<Command> thirdStage;
+  private SendableChooser<Command> fourthStage;
+  private SendableChooser<Command> fithStage;
+  private SendableChooser<Command> sixthStage;
   // private SendableChooser<Command> tags;
   private String[] initialPathOptions = {
     "trenchShort", "trenchMid", "trenchFar", "stackedTrenchShort", "stackedTrenchMid", "stackedTrenchFar"
   };
   private String[] secondStageOptions = {"returnBump", "returnTrench", "frontDepot", "sideDepot"};
-  private String[] thirdStageOptions = {"frontDepot", "sideDepot", "CurveToTrench"};
+  private String[] thirdStageOptions = {"frontDepot", "sideDepot", "CurveToTrench", "trenchShort"};
+  private String[] fourthStageOptions = {"secondSwipe"};
+  private String[] fithStageOptions = {"returnBump", "returnTrench"};
+  private String[] sixthStageOptions = {"frontDepot", "sideDepot", "CurveToTrench"};
 
   public AutoOrchestrator(Builder builder, AutoCommands commands, BooleanSupplier mirror) {
     shouldMirror = mirror;
@@ -39,6 +45,9 @@ public class AutoOrchestrator {
     initialPath = buildResetingPathChooser("initialPath", initialPathOptions);
     secondStage = buildPathChooser("Second Stage", secondStageOptions);
     thirdStage = buildPathChooser("Third Stage", thirdStageOptions);
+    fourthStage = buildPathChooser("Fourth Stage", fourthStageOptions);
+    fithStage = buildPathChooser("fith stage", fithStageOptions);
+    sixthStage = buildPathChooser("sixth Stage", sixthStageOptions);
     // tags = buildTags();
     SmartDashboard.putNumber("Auto Delay", 0.0);
   }
@@ -104,20 +113,15 @@ public class AutoOrchestrator {
   //   return chooser;
   // }
 
-  public Command deferEverythingAutoCommand() {
-    return deferEverything(
-        startOptions.getSelected(),
-        initialPath.getSelected(),
-        secondStage.getSelected(),
-        thirdStage.getSelected());
-  }
-
   public Command getAutocommand() {
     return Commands.sequence(
         startOptions.getSelected(),
         initialPath.getSelected(),
         secondStage.getSelected(),
-        thirdStage.getSelected());
+        thirdStage.getSelected(),
+        fourthStage.getSelected(),
+        fithStage.getSelected(),
+        sixthStage.getSelected());
   }
 
   private Command deferEverything(Command... commands) {

@@ -120,7 +120,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
           this::getEstimatedVelocity, // Current speeds supplier
           (speeds) -> setControl(m_pathApplyRobotSpeeds.withSpeeds(
               ChassisSpeeds.discretize(speeds, 0.020))), // Drive consumer
-          new PIDController(5.0, 0.0, 0.0), // Translation controller
+          new PIDController(6.0, 0.0, 0.0), // Translation controller
           new PIDController(3.0, 0.0, 0.0), // Rotation controller
           new PIDController(2.0, 0.0, 0.0) // Cross-track controller
           )

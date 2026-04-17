@@ -18,6 +18,11 @@
       "lib_key": "prepShoot"
     },
     {
+      "type": "event_trigger",
+      "t_ratio": 0.7,
+      "lib_key": "shoot"
+    },
+    {
       "type": "waypoint",
       "translation_target": {
         "x_meters": 2.0012997562956927,
@@ -31,7 +36,7 @@
     }
   ],
   "constraints": {
-    "end_translation_tolerance_meters": 3.0,
+    "end_translation_tolerance_meters": 2.0,
     "max_velocity_meters_per_sec": [
       {
         "value": 3.0,
