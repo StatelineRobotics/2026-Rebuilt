@@ -34,6 +34,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.generated.TunerConstants;
 import java.util.function.BooleanSupplier;
+import java.util.function.DoubleSupplier;
 
 @Logged
 public class Intake extends SubsystemBase {
@@ -53,6 +54,7 @@ public class Intake extends SubsystemBase {
   private static final double storePosition = 0.195;
   private static final double intakePosition = -0.145;
   private static final double deployPosition = 0.06;
+  private static final double slightLiftPosition = intakePosition + 0.1;
 
   private final Alert absoluteEncoderAlert = new Alert("Intake Not Start In Expected Position", AlertType.kWarning);
   private boolean lastUseValue = false;
@@ -123,45 +125,55 @@ public class Intake extends SubsystemBase {
     }
   }
 
+  private void controlIntakePosition(double desiredPosition) {
+    pivotController.setSetpoint(desiredPosition + intakeOffset.getDouble(0.0), ControlType.kPosition);
+  }
+
   public Command storeCommand() {
     return startRun(
         () -> {
-          pivotController.setSetpoint(storePosition, ControlType.kPosition);
           rollerMotor.setControl(neutralRequest);
           lowerRollerMotor.setControl(neutralRequest);
         },
-        () -> {});
+        () -> {
+          controlIntakePosition(storePosition);
+        });
   }
 
   public Command deployCommand() {
     return startRun(
         () -> {
-          pivotController.setSetpoint(intakePosition, ControlType.kPosition);
           rollerMotor.setControl(neutralRequest);
           lowerRollerMotor.setControl(neutralRequest);
         },
-        () -> {});
+        () -> {
+          controlIntakePosition(intakePosition);
+        });
   }
 
   public Command agitate() {
     return startRun(
             () -> {
-              pivotController.setSetpoint(deployPosition, ControlType.kPosition);
+              
               rollerMotor.setControl(voltageRequest.withOutput(2.0));
               lowerRollerMotor.setControl(neutralRequest);
             },
-            () -> {})
+            () -> {
+              controlIntakePosition(deployPosition);
+            })
         .withName("agitate");
   }
 
   public Command idleDeployed() {
     return startRun(
         () -> {
-          pivotController.setSetpoint(intakePosition, ControlType.kPosition);
+          
           rollerMotor.setControl(neutralRequest);
           lowerRollerMotor.setControl(neutralRequest);
         },
-        () -> {});
+        () -> {
+          controlIntakePosition(intakePosition);
+        });
   }
 
   public Command autoAgitate() {
@@ -175,21 +187,33 @@ public class Intake extends SubsystemBase {
           lowerRollerMotor.setControl(voltageRequest.withOutput(7.0));
         },
         () -> {
-          pivotController.setSetpoint(intakePosition + intakeOffset.getDouble(0.0), ControlType.kPosition);
+          controlIntakePosition(intakePosition);
         });
   }
 
   public Command reverseIntake() {
     return startRun(
         () -> {
-          pivotController.setSetpoint(intakePosition, ControlType.kPosition);
           rollerMotor.setControl(voltageRequest.withOutput(-8.0));
           lowerRollerMotor.setControl(voltageRequest.withOutput(-9.0));
         },
-        () -> {});
+        () -> {
+          controlIntakePosition(intakePosition);
+        });
   }
 
   public Command reverseRunIntake(BooleanSupplier condition) {
     return reverseIntake().until(condition).andThen(intakeCommand());
+  }
+
+  public Command liftIntake() {
+    return startRun(
+        () -> {
+          rollerMotor.setControl(voltageRequest.withOutput(-8.0));
+          lowerRollerMotor.setControl(voltageRequest.withOutput(-9.0));
+        },
+        () -> {
+          controlIntakePosition(slightLiftPosition);
+        });
   }
 }

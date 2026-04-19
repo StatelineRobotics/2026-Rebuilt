@@ -37,4 +37,8 @@ public class AutoCommands {
   public Command intake() {
     return intake.intakeCommand().asProxy();
   }
+
+  public Command intakeLift() {
+    return intake.liftIntake().asProxy();
+  }
 }

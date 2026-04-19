@@ -56,6 +56,8 @@ public class AutoOrchestrator {
     FollowPath.registerEventTrigger("shoot", autoCommands.shoot());
     FollowPath.registerEventTrigger("stopShoot", autoCommands.stopShooting());
     FollowPath.registerEventTrigger("prepShoot", autoCommands.prepShooter());
+    FollowPath.registerEventTrigger("intake", autoCommands.intake());
+    FollowPath.registerEventTrigger("liftIntake", autoCommands.intakeLift());
     new EventTrigger("runIntake").onTrue(autoCommands.intake());
     new EventTrigger("shoot").whileTrue(autoCommands.shoot());
   }
