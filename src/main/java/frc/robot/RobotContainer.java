@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import frc.robot.Util.AutoOrchestrator;
@@ -32,7 +33,7 @@ import frc.robot.subsystems.Vision;
 public class RobotContainer {
   private double MaxSpeed =
       1.0 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
-  private double shootingMaxSpeed = MaxSpeed * 0.2;
+  private double shootingMaxSpeed = MaxSpeed * 0.3;
   private double currentMax = MaxSpeed;
   private double MaxAngularRate =
       RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
@@ -120,15 +121,20 @@ public class RobotContainer {
     // ));
 
     joystick.rightTrigger()
-        .whileTrue(getShootCommand().alongWith(Commands.runOnce(() -> {
-          currentMax = shootingMaxSpeed;
-          currentMaxRotation = shootingMaxRotation;
-        })))
-        .whileFalse(indexer.idleCommand().alongWith(Commands.runOnce(() -> {
-          currentMax = MaxSpeed;
-          currentMaxRotation = MaxAngularRate;
-        })));
-    joystick.leftTrigger().whileTrue(intake.intakeCommand()).onFalse(intake.idleDeployed());
+        .whileTrue(
+            intake.slowRise().asProxy().alongWith(getShootCommand().alongWith(Commands.runOnce(() -> {
+              currentMax = shootingMaxSpeed;
+              currentMaxRotation = shootingMaxRotation;
+            }))))
+        .whileFalse(
+            indexer.idleCommand().alongWith(intake.intakeCommand()).alongWith(Commands.runOnce(() -> {
+              currentMax = MaxSpeed;
+              currentMaxRotation = MaxAngularRate;
+            })));
+    joystick.leftTrigger()
+        .whileTrue(intake.intakeCommand())
+        .onFalse(new ConditionalCommand(
+            intake.slowRise(), intake.idleDeployed(), () -> currentMax == shootingMaxSpeed));
     joystick.leftBumper().whileTrue(intake.reverseIntake()).onFalse(intake.idleDeployed());
     joystick.rightBumper().whileTrue(indexer.reverseIndexer()).whileFalse(indexer.idleCommand());
 

@@ -27,6 +27,7 @@ import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -34,7 +35,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.generated.TunerConstants;
 import java.util.function.BooleanSupplier;
-import java.util.function.DoubleSupplier;
 
 @Logged
 public class Intake extends SubsystemBase {
@@ -55,6 +55,8 @@ public class Intake extends SubsystemBase {
   private static final double intakePosition = -0.145;
   private static final double deployPosition = 0.06;
   private static final double slightLiftPosition = intakePosition + 0.1;
+
+  double startTime = 0.0;
 
   private final Alert absoluteEncoderAlert = new Alert("Intake Not Start In Expected Position", AlertType.kWarning);
   private boolean lastUseValue = false;
@@ -154,7 +156,6 @@ public class Intake extends SubsystemBase {
   public Command agitate() {
     return startRun(
             () -> {
-              
               rollerMotor.setControl(voltageRequest.withOutput(2.0));
               lowerRollerMotor.setControl(neutralRequest);
             },
@@ -167,7 +168,6 @@ public class Intake extends SubsystemBase {
   public Command idleDeployed() {
     return startRun(
         () -> {
-          
           rollerMotor.setControl(neutralRequest);
           lowerRollerMotor.setControl(neutralRequest);
         },
@@ -214,6 +214,23 @@ public class Intake extends SubsystemBase {
         },
         () -> {
           controlIntakePosition(slightLiftPosition);
+        });
+  }
+
+  public Command slowRise() {
+    return startRun(
+        () -> {
+          startTime = Timer.getFPGATimestamp();
+          rollerMotor.setControl(voltageRequest.withOutput(2.0));
+          lowerRollerMotor.setControl(neutralRequest);
+        },
+        () -> {
+          double elapsedTime = Timer.getFPGATimestamp() - startTime - 2.0;
+          if (elapsedTime > 0.0) {
+            controlIntakePosition(Math.min(intakePosition + (elapsedTime * 0.1), deployPosition));
+          } else {
+            controlIntakePosition(intakePosition);
+          }
         });
   }
 }

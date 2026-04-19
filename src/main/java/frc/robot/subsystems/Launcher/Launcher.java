@@ -69,7 +69,7 @@ public class Launcher extends SubsystemBase {
     var velocity = drivetrain.getFieldReletiveVelocity();
     bestShootingSolution = getBestShootingSolution(getTurretPose(), velocity);
 
-    turretVelo = veloFilter.calculate(- +velocity.omegaRadiansPerSecond);
+    turretVelo = veloFilter.calculate(-velocity.omegaRadiansPerSecond);
 
     // var estDisplacement = new Translation2d(velocity.vxMetersPerSecond * 0.02, velocity.vyMetersPerSecond *
     // 0.02);
@@ -96,7 +96,8 @@ public class Launcher extends SubsystemBase {
             ? ShotCalculator.getSOTMhubSolution(turretPose, robotSpeeds)
             : ShotCalculator.getStaticHubSolution(turretPose);
       } else {
-        return ShotCalculator.getPassingSolution(turretPose);
+        return currentlyShooting ? ShotCalculator.getPassingSolution(turretPose, robotSpeeds) :
+        ShotCalculator.getPassingSolution(turretPose, new ChassisSpeeds(0.0, 0.0, 0.0));
       }
     } else {
       if (turretPose.getX() > 16.540988 - 4.625594) {
@@ -104,7 +105,8 @@ public class Launcher extends SubsystemBase {
             ? ShotCalculator.getSOTMhubSolution(turretPose, robotSpeeds)
             : ShotCalculator.getStaticHubSolution(turretPose);
       } else {
-        return ShotCalculator.getPassingSolution(turretPose);
+        return currentlyShooting ? ShotCalculator.getPassingSolution(turretPose, robotSpeeds) :
+        ShotCalculator.getPassingSolution(turretPose, new ChassisSpeeds(0.0, 0.0, 0.0));
       }
     }
   }

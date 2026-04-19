@@ -147,14 +147,24 @@ public class ShotCalculator {
     return new ShootingSolution(turretAngle, Degrees.of(hoodMap.get(distance)), flywheelMap.get(distance));
   }
 
-  public static ShootingSolution getPassingSolution(Pose2d turretPose) {
+  public static ShootingSolution getPassingSolution(Pose2d turretPose, ChassisSpeeds robotVelocity) {
     if (DriverStation.getAlliance().orElseGet(() -> Alliance.Blue) == Alliance.Blue) {
       targetPose = (turretPose.getY() < 4.0) ? blueRightPass : blueLeftPass;
     } else {
       targetPose = (turretPose.getY() < 4.0) ? redRightPass : redLeftPass;
     }
 
-    mostRecentTarget = new Pose2d(targetPose, Rotation2d.kZero);
+    Translation2d currentTurretVector = turretPerpVector.rotateBy(turretPose.getRotation());
+    recentPerpVector = currentTurretVector;
+    Translation2d rotLinearVelocity =
+        currentTurretVector.times(robotVelocity.omegaRadiansPerSecond * Launcher.turretOffset.getNorm());
+    double timeOfFlight = 1.125;
+
+      double offsetX =
+          (robotVelocity.vxMetersPerSecond + rotLinearVelocity.getX()) * linearDragComp(timeOfFlight);
+      double offsetY =
+          (robotVelocity.vyMetersPerSecond + rotLinearVelocity.getY()) * linearDragComp(timeOfFlight);
+      targetPose = targetPose.minus(new Translation2d(offsetX, offsetY));
 
     Translation2d difference = targetPose.minus(turretPose.getTranslation());
     double distance = difference.getNorm();
