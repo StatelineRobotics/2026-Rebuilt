@@ -55,8 +55,8 @@ public class RobotContainer {
   private final Pose2d pose = new Pose2d(10.0, 2.0, Rotation2d.kZero);
 
   public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
-  public final Launcher launcher = new Launcher(drivetrain);
   public final Intake intake = new Intake();
+  public final Launcher launcher = new Launcher(drivetrain, intake::safeForTurret);
   public final Indexer indexer = new Indexer();
   public final Vision vision = new Vision(drivetrain, () -> pose);
 
@@ -121,22 +121,26 @@ public class RobotContainer {
     // ));
 
     joystick.rightTrigger()
-        .whileTrue(
-            intake.slowRise().asProxy().alongWith(getShootCommand().alongWith(Commands.runOnce(() -> {
-              currentMax = shootingMaxSpeed;
-              currentMaxRotation = shootingMaxRotation;
-            }))))
+        .whileTrue(getShootCommand().alongWith(Commands.runOnce(() -> {
+          currentMax = shootingMaxSpeed;
+          currentMaxRotation = shootingMaxRotation;
+        })))
         .whileFalse(
             indexer.idleCommand().alongWith(intake.intakeCommand()).alongWith(Commands.runOnce(() -> {
               currentMax = MaxSpeed;
               currentMaxRotation = MaxAngularRate;
             })));
-    joystick.leftTrigger()
-        .whileTrue(intake.intakeCommand())
-        .onFalse(new ConditionalCommand(
-            intake.slowRise(), intake.idleDeployed(), () -> currentMax == shootingMaxSpeed));
-    joystick.leftBumper().whileTrue(intake.reverseIntake()).onFalse(intake.idleDeployed());
-    joystick.rightBumper().whileTrue(indexer.reverseIndexer()).whileFalse(indexer.idleCommand());
+    joystick.leftTrigger().whileTrue(intake.intakeCommand());
+    joystick.leftBumper().whileTrue(intake.reverseIntake());
+    // joystick.rightBumper().whileTrue(indexer.reverseIndexer()).whileFalse(indexer.idleCommand());
+    joystick.rightBumper()
+        .whileTrue(getShootCommand()
+            .asProxy()
+            .alongWith(new ConditionalCommand(
+                drivetrain.pathBuilder.build(orchestrator.twistPath),
+                drivetrain.pathBuilder.build(orchestrator.twistMirror),
+                () -> drivetrain.getEstimatedPose().getY() > 4.0)))
+        .onFalse(launcher.runToZero());
 
     joystick.a().whileTrue(intake.agitate()).onFalse(intake.deployCommand());
     joystick.y()

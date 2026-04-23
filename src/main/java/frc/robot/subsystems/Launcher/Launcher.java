@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Launcher.ShotCalculator.ShootingSolution;
+import java.util.function.BooleanSupplier;
 
 @Logged
 public class Launcher extends SubsystemBase {
@@ -50,8 +51,9 @@ public class Launcher extends SubsystemBase {
   // private LinearFilter distanceFilter = LinearFilter.movingAverage(20);
 
   /** Creates a new Launcher. */
-  public Launcher(CommandSwerveDrivetrain Drivetrain) {
+  public Launcher(CommandSwerveDrivetrain Drivetrain, BooleanSupplier safeToSpin) {
     drivetrain = Drivetrain;
+    turret.safeSpin = safeToSpin;
 
     // SmartDashboard.putData("Flywheel", flywheel);
     // SmartDashboard.putData("Hood", hood);
@@ -96,8 +98,9 @@ public class Launcher extends SubsystemBase {
             ? ShotCalculator.getSOTMhubSolution(turretPose, robotSpeeds)
             : ShotCalculator.getStaticHubSolution(turretPose);
       } else {
-        return currentlyShooting ? ShotCalculator.getPassingSolution(turretPose, robotSpeeds) :
-        ShotCalculator.getPassingSolution(turretPose, new ChassisSpeeds(0.0, 0.0, 0.0));
+        return currentlyShooting
+            ? ShotCalculator.getPassingSolution(turretPose, robotSpeeds)
+            : ShotCalculator.getPassingSolution(turretPose, new ChassisSpeeds(0.0, 0.0, 0.0));
       }
     } else {
       if (turretPose.getX() > 16.540988 - 4.625594) {
@@ -105,8 +108,9 @@ public class Launcher extends SubsystemBase {
             ? ShotCalculator.getSOTMhubSolution(turretPose, robotSpeeds)
             : ShotCalculator.getStaticHubSolution(turretPose);
       } else {
-        return currentlyShooting ? ShotCalculator.getPassingSolution(turretPose, robotSpeeds) :
-        ShotCalculator.getPassingSolution(turretPose, new ChassisSpeeds(0.0, 0.0, 0.0));
+        return currentlyShooting
+            ? ShotCalculator.getPassingSolution(turretPose, robotSpeeds)
+            : ShotCalculator.getPassingSolution(turretPose, new ChassisSpeeds(0.0, 0.0, 0.0));
       }
     }
   }

@@ -113,6 +113,7 @@ public class Intake extends SubsystemBase {
     otherRollerMotor.setControl(new Follower(Constants.rollerId, MotorAlignmentValue.Opposed));
 
     SmartDashboard.putBoolean("UsePivotInternal", false);
+    setDefaultCommand(liftIntake());
   }
 
   @Override
@@ -129,6 +130,10 @@ public class Intake extends SubsystemBase {
 
   private void controlIntakePosition(double desiredPosition) {
     pivotController.setSetpoint(desiredPosition + intakeOffset.getDouble(0.0), ControlType.kPosition);
+  }
+
+  public boolean safeForTurret() {
+    return pivotEncoder.getPosition() < 0.18 || pivotMotor.getEncoder().getPosition() < 0.18;
   }
 
   public Command storeCommand() {
@@ -209,8 +214,8 @@ public class Intake extends SubsystemBase {
   public Command liftIntake() {
     return startRun(
         () -> {
-          rollerMotor.setControl(voltageRequest.withOutput(-8.0));
-          lowerRollerMotor.setControl(voltageRequest.withOutput(-9.0));
+          rollerMotor.setControl(voltageRequest.withOutput(0.0));
+          lowerRollerMotor.setControl(voltageRequest.withOutput(0.0));
         },
         () -> {
           controlIntakePosition(slightLiftPosition);

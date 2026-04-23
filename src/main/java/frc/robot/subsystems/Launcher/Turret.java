@@ -23,10 +23,12 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Robot;
 import frc.robot.generated.TunerConstants;
+import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
 @Logged
@@ -54,9 +56,12 @@ class Turret extends SubsystemBase {
   public AngularVelocity requestTargetVelocity = positionRequest.getVelocityMeasure();
   public Angle requestTargetangle = positionRequest.getPositionMeasure();
 
+  public BooleanSupplier safeSpin = () -> true;
+
   /** Creates a new Turret. */
   public Turret() {
     turretEntry.getTopic().genericPublish("double");
+
     turretEntry.getTopic().setPersistent(true);
     turretOffset.getTopic().genericPublish("double");
     turretOffset.getTopic().setPersistent(true);
@@ -114,8 +119,9 @@ class Turret extends SubsystemBase {
   }
 
   protected Command targetAngle(Supplier<Angle> targetAngle) {
-    return run(() -> turretMotor.setControl(positionRequest.withPosition(
-        wrapTargetAngle(targetAngle.get().plus(Degrees.of(turretOffset.getDouble(0.0)))))));
+    return Commands.waitUntil(safeSpin)
+        .andThen(run(() -> turretMotor.setControl(positionRequest.withPosition(
+            wrapTargetAngle(targetAngle.get().plus(Degrees.of(turretOffset.getDouble(0.0))))))));
   }
 
   protected Command targetAngleWithVelocity(Supplier<Angle> targetAngle, Supplier<AngularVelocity> targetVelocity) {

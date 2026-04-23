@@ -160,11 +160,9 @@ public class ShotCalculator {
         currentTurretVector.times(robotVelocity.omegaRadiansPerSecond * Launcher.turretOffset.getNorm());
     double timeOfFlight = 1.125;
 
-      double offsetX =
-          (robotVelocity.vxMetersPerSecond + rotLinearVelocity.getX()) * linearDragComp(timeOfFlight);
-      double offsetY =
-          (robotVelocity.vyMetersPerSecond + rotLinearVelocity.getY()) * linearDragComp(timeOfFlight);
-      targetPose = targetPose.minus(new Translation2d(offsetX, offsetY));
+    double offsetX = (robotVelocity.vxMetersPerSecond + rotLinearVelocity.getX()) * linearDragComp(timeOfFlight);
+    double offsetY = (robotVelocity.vyMetersPerSecond + rotLinearVelocity.getY()) * linearDragComp(timeOfFlight);
+    targetPose = targetPose.minus(new Translation2d(offsetX, offsetY));
 
     Translation2d difference = targetPose.minus(turretPose.getTranslation());
     double distance = difference.getNorm();

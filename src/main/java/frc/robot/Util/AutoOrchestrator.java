@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.AutoCommands;
 import frc.robot.lib.BLine.FollowPath;
 import frc.robot.lib.BLine.FollowPath.Builder;
+import frc.robot.lib.BLine.Path;
 import java.util.function.BooleanSupplier;
 
 @Logged
@@ -18,6 +19,9 @@ public class AutoOrchestrator {
   private AutoCommands autoCommands;
 
   private BooleanSupplier shouldMirror;
+
+  public Path twistPath = new Path("CurveToTrench");
+  public Path twistMirror = new Path("CurveToTrench");
 
   private SendableChooser<Command> startOptions;
   private SendableChooser<Command> initialPath;
@@ -37,6 +41,7 @@ public class AutoOrchestrator {
   private String[] sixthStageOptions = {"frontDepot", "sideDepot", "CurveToTrench"};
 
   public AutoOrchestrator(Builder builder, AutoCommands commands, BooleanSupplier mirror) {
+    twistMirror.mirror();
     shouldMirror = mirror;
     bLineBuilder = builder;
     autoCommands = commands;
