@@ -53,6 +53,11 @@
       "profiled_rotation": true
     },
     {
+      "type": "event_trigger",
+      "t_ratio": 0.8999999999999999,
+      "lib_key": "stopShoot"
+    },
+    {
       "type": "waypoint",
       "translation_target": {
         "x_meters": 3.2183267853035353,
@@ -72,6 +77,13 @@
         "value": 1.0,
         "start_ordinal": 0,
         "end_ordinal": 3
+      }
+    ],
+    "max_velocity_deg_per_sec": [
+      {
+        "value": 180.0,
+        "start_ordinal": 0,
+        "end_ordinal": 4
       }
     ]
   }

@@ -66,7 +66,7 @@ public class Launcher extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    distance = getTurretPose().getTranslation().getDistance(ShotCalculator.blueRightPass);
+    distance = getTurretPose().getTranslation().getDistance(ShotCalculator.blueHubPose);
 
     var velocity = drivetrain.getFieldReletiveVelocity();
     bestShootingSolution = getBestShootingSolution(getTurretPose(), velocity);

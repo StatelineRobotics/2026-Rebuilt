@@ -20,8 +20,24 @@
         "y": 4.74
       },
       "prevControl": {
-        "x": 8.281485002330257,
-        "y": 7.938820072140571
+        "x": 8.903994293865905,
+        "y": 8.039514978601996
+      },
+      "nextControl": {
+        "x": 7.678623686390815,
+        "y": 4.442407150059016
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 6.549158345221112,
+        "y": 5.4517831669044226
+      },
+      "prevControl": {
+        "x": 7.273723252496433,
+        "y": 5.412967189728959
       },
       "nextControl": null,
       "isLocked": false,
@@ -32,6 +48,10 @@
     {
       "waypointRelativePos": 0.42004264392324264,
       "rotationDegrees": -100.0
+    },
+    {
+      "waypointRelativePos": 0.8912579957356057,
+      "rotationDegrees": -90.0
     }
   ],
   "constraintZones": [
@@ -40,7 +60,7 @@
       "minWaypointRelativePos": 0.6536124240378143,
       "maxWaypointRelativePos": 1.0,
       "constraints": {
-        "maxVelocity": 1.5,
+        "maxVelocity": 2.0,
         "maxAcceleration": 5.0,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 720.0,
@@ -67,8 +87,8 @@
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 0,
-    "rotation": -90.0
+    "velocity": 0.5,
+    "rotation": 178.636072468397
   },
   "reversed": false,
   "folder": "Initial Paths",

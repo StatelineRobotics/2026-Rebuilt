@@ -12,20 +12,25 @@
       "lib_key": "shoot"
     },
     {
+      "type": "event_trigger",
+      "t_ratio": 0.0,
+      "lib_key": "intake"
+    },
+    {
       "type": "translation",
-      "x_meters": 2.309844150223521,
-      "y_meters": 6.338649002462525,
+      "x_meters": 2.1079448696479823,
+      "y_meters": 6.136749721886986,
       "intermediate_handoff_radius_meters": 0.2
     },
     {
       "type": "translation",
-      "x_meters": 2.621139176526448,
-      "y_meters": 7.191908138140248,
+      "x_meters": 2.1668657952314834,
+      "y_meters": 6.939534037420824,
       "intermediate_handoff_radius_meters": 0.2
     },
     {
       "type": "event_trigger",
-      "t_ratio": 0.8499999999999998,
+      "t_ratio": 0.8499999999999993,
       "lib_key": "stopShoot"
     },
     {
@@ -51,6 +56,13 @@
       }
     ],
     "max_velocity_deg_per_sec": [
+      {
+        "value": 180.0,
+        "start_ordinal": 0,
+        "end_ordinal": 0
+      }
+    ],
+    "max_acceleration_deg_per_sec2": [
       {
         "value": 180.0,
         "start_ordinal": 0,

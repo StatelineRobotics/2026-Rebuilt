@@ -220,7 +220,8 @@ public class ShotCalculator {
   }
 
   private static double linearDragComp(double t) {
-    double k = 0.01;
-    return (1.0 - Math.exp(-k * t)) / k;
+    return t;
+    // double k = 0.02;
+    // return (1.0 - Math.exp(-k * t)) / k;
   }
 }

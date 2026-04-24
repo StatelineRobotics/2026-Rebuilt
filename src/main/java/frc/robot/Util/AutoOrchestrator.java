@@ -108,6 +108,7 @@ public class AutoOrchestrator {
                 .intake()
                 .alongWith(Commands.waitSeconds(0.5)
                     .andThen(autoCommands.shoot().withTimeout(5.0)))));
+    chooser.addOption("intake", autoCommands.intake().withTimeout(0.25));
     SmartDashboard.putData("Start Options", chooser);
     return chooser;
   }

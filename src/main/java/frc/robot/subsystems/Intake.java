@@ -56,6 +56,8 @@ public class Intake extends SubsystemBase {
   private static final double deployPosition = 0.06;
   private static final double slightLiftPosition = intakePosition + 0.1;
 
+  private boolean turretSafe = false;
+
   double startTime = 0.0;
 
   private final Alert absoluteEncoderAlert = new Alert("Intake Not Start In Expected Position", AlertType.kWarning);
@@ -111,9 +113,11 @@ public class Intake extends SubsystemBase {
     }
 
     otherRollerMotor.setControl(new Follower(Constants.rollerId, MotorAlignmentValue.Opposed));
+    if (pivotEncoder.getPosition() < 0.08 || pivotMotor.getEncoder().getPosition() < 0.08) {
+      turretSafe = true;
+    }
 
     SmartDashboard.putBoolean("UsePivotInternal", false);
-    setDefaultCommand(liftIntake());
   }
 
   @Override
@@ -133,7 +137,7 @@ public class Intake extends SubsystemBase {
   }
 
   public boolean safeForTurret() {
-    return pivotEncoder.getPosition() < 0.18 || pivotMotor.getEncoder().getPosition() < 0.18;
+    return turretSafe;
   }
 
   public Command storeCommand() {
@@ -144,6 +148,9 @@ public class Intake extends SubsystemBase {
         },
         () -> {
           controlIntakePosition(storePosition);
+          if (pivotEncoder.getPosition() > 0.15) {
+            turretSafe = false;
+          }
         });
   }
 
@@ -188,7 +195,7 @@ public class Intake extends SubsystemBase {
   public Command intakeCommand() {
     return startRun(
         () -> {
-          rollerMotor.setControl(voltageRequest.withOutput(7.0));
+          rollerMotor.setControl(voltageRequest.withOutput(8.0));
           lowerRollerMotor.setControl(voltageRequest.withOutput(7.0));
         },
         () -> {

@@ -125,12 +125,12 @@ public class RobotContainer {
           currentMax = shootingMaxSpeed;
           currentMaxRotation = shootingMaxRotation;
         })))
-        .whileFalse(
-            indexer.idleCommand().alongWith(intake.intakeCommand()).alongWith(Commands.runOnce(() -> {
-              currentMax = MaxSpeed;
-              currentMaxRotation = MaxAngularRate;
-            })));
-    joystick.leftTrigger().whileTrue(intake.intakeCommand());
+        .whileFalse(indexer.idleCommand().alongWith(Commands.runOnce(() -> {
+          currentMax = MaxSpeed;
+          currentMaxRotation = MaxAngularRate;
+        })));
+
+    joystick.leftTrigger().whileTrue(intake.intakeCommand()).onFalse(intake.liftIntake());
     joystick.leftBumper().whileTrue(intake.reverseIntake());
     // joystick.rightBumper().whileTrue(indexer.reverseIndexer()).whileFalse(indexer.idleCommand());
     joystick.rightBumper()
@@ -147,6 +147,7 @@ public class RobotContainer {
         .onTrue(Commands.waitUntil(launcher::turretReady)
             .andThen(intake.storeCommand())
             .alongWith(launcher.everythingToZeroForReal()));
+    joystick.b().whileTrue(indexer.reverseIndexer());
 
     // Reset the field-centric heading on left bumper press.
     // joystick.a().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));

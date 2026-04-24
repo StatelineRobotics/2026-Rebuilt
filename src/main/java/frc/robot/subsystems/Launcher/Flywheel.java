@@ -137,7 +137,7 @@ public class Flywheel extends SubsystemBase {
   public boolean atTarget() {
     return velocityControlRequest
         .getVelocityMeasure()
-        .isNear(leftFlywheelMotor.getVelocity().getValue(), RotationsPerSecond.of(10));
+        .isNear(leftFlywheelMotor.getVelocity().getValue(), RotationsPerSecond.of(4));
   }
 
   protected Command idleCommand() {

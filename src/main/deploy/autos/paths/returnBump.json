@@ -19,6 +19,11 @@
     },
     {
       "type": "event_trigger",
+      "t_ratio": 0.0,
+      "lib_key": "liftIntake"
+    },
+    {
+      "type": "event_trigger",
       "t_ratio": 0.7,
       "lib_key": "shoot"
     },
