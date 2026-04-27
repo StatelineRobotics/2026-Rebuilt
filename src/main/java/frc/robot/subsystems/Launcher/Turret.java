@@ -78,7 +78,7 @@ class Turret extends SubsystemBase {
         .withReverseSoftLimitEnable(true)
         .withForwardSoftLimitThreshold(maxRotation)
         .withReverseSoftLimitThreshold(minRotation);
-    config.Slot0.withKP(150.0).withKD(5.0).withKS(0.45).withKV(3.42);
+    config.Slot0.withKP(170.0).withKD(5.0).withKS(0.65).withKV(3.5);
 
     turretMotor.getConfigurator().apply(config);
 
