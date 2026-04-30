@@ -87,7 +87,6 @@ public class Vision extends SubsystemBase {
     }
 
     SmartDashboard.putBoolean("UseCameras", true);
-    SmartDashboard.putBoolean("Use PNP", false);
   }
 
   @Override
@@ -181,10 +180,10 @@ public class Vision extends SubsystemBase {
           }
         }
 
-        if (setIntrinsics && SmartDashboard.getBoolean("Use PNP", false)) {
-          estimate = poseEstimator.estimateConstrainedSolvepnpPose(
-              result, cameraMatrix.get(), distCoeff.get(), estimate.get().estimatedPose, true, 0.5);
-        }
+        // if (setIntrinsics && SmartDashboard.getBoolean("Use PNP", false)) {
+        //   estimate = poseEstimator.estimateConstrainedSolvepnpPose(
+        //       result, cameraMatrix.get(), distCoeff.get(), estimate.get().estimatedPose, true, 0.5);
+        // }
 
         if (estimate.isEmpty()) {
           continue;

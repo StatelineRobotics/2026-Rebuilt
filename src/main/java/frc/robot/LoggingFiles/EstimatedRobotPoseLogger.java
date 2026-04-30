@@ -5,13 +5,10 @@
 package frc.robot.LoggingFiles;
 
 import edu.wpi.first.epilogue.CustomLoggerFor;
-import edu.wpi.first.epilogue.Epilogue;
-import edu.wpi.first.epilogue.Logged.Importance;
 import edu.wpi.first.epilogue.logging.ClassSpecificLogger;
 import edu.wpi.first.epilogue.logging.EpilogueBackend;
 import edu.wpi.first.math.geometry.Pose3d;
 import org.photonvision.EstimatedRobotPose;
-import org.photonvision.targeting.PhotonTrackedTarget;
 
 /** Add your docs here. */
 @CustomLoggerFor(EstimatedRobotPose.class)
@@ -30,10 +27,10 @@ public class EstimatedRobotPoseLogger extends ClassSpecificLogger<EstimatedRobot
     backend.log("Timestamp Seconds", estimatedPose.timestampSeconds);
     backend.log("Strategy", estimatedPose.strategy.toString());
     backend.log("Number Of Targets Used", estimatedPose.targetsUsed.size());
-    if (Epilogue.shouldLog(Importance.DEBUG)) {
-      for (int i = 0; i < estimatedPose.targetsUsed.size(); i++) {
-        backend.log(Integer.toString(i), estimatedPose.targetsUsed.get(i), PhotonTrackedTarget.proto);
-      }
-    }
+    // if (Epilogue.shouldLog(Importance.DEBUG)) {
+    //   for (int i = 0; i < estimatedPose.targetsUsed.size(); i++) {
+    //     backend.log(Integer.toString(i), estimatedPose.targetsUsed.get(i), PhotonTrackedTarget.proto);
+    //   }
+    // }
   }
 }

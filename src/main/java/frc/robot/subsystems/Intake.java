@@ -52,9 +52,9 @@ public class Intake extends SubsystemBase {
   private static final double pivotRatio = 1.0 / (16.0 * (60.0 / 24.0) * 2); // planetary * gears * chain
 
   private static final double storePosition = 0.195;
-  private static final double intakePosition = -0.145;
-  private static final double deployPosition = 0.06;
-  private static final double slightLiftPosition = intakePosition + 0.1;
+  private static final double intakePosition = -0.15;
+  private static final double agitatePosition = 0.06;
+  private static final double slightLiftPosition = intakePosition + 0.05;
 
   private boolean turretSafe = false;
 
@@ -158,7 +158,7 @@ public class Intake extends SubsystemBase {
     return startRun(
         () -> {
           rollerMotor.setControl(neutralRequest);
-          lowerRollerMotor.setControl(neutralRequest);
+          lowerRollerMotor.setControl(voltageRequest.withOutput(3.0));
         },
         () -> {
           controlIntakePosition(intakePosition);
@@ -172,7 +172,7 @@ public class Intake extends SubsystemBase {
               lowerRollerMotor.setControl(neutralRequest);
             },
             () -> {
-              controlIntakePosition(deployPosition);
+              controlIntakePosition(agitatePosition);
             })
         .withName("agitate");
   }
@@ -180,8 +180,8 @@ public class Intake extends SubsystemBase {
   public Command idleDeployed() {
     return startRun(
         () -> {
-          rollerMotor.setControl(neutralRequest);
-          lowerRollerMotor.setControl(neutralRequest);
+          rollerMotor.setControl(voltageRequest.withOutput(3.0));
+          lowerRollerMotor.setControl(voltageRequest.withOutput(3.0));
         },
         () -> {
           controlIntakePosition(intakePosition);
@@ -219,14 +219,15 @@ public class Intake extends SubsystemBase {
   }
 
   public Command liftIntake() {
-    return startRun(
-        () -> {
-          rollerMotor.setControl(voltageRequest.withOutput(0.0));
-          lowerRollerMotor.setControl(voltageRequest.withOutput(0.0));
-        },
-        () -> {
-          controlIntakePosition(slightLiftPosition);
-        });
+    return idleDeployed();
+    // return startRun(
+    // () -> {
+    //   rollerMotor.setControl(voltageRequest.withOutput(0.0));
+    //   lowerRollerMotor.setControl(voltageRequest.withOutput(0.0));
+    // },
+    // () -> {
+    //   controlIntakePosition(slightLiftPosition);
+    // });
   }
 
   public Command slowRise() {
@@ -239,7 +240,7 @@ public class Intake extends SubsystemBase {
         () -> {
           double elapsedTime = Timer.getFPGATimestamp() - startTime - 2.0;
           if (elapsedTime > 0.0) {
-            controlIntakePosition(Math.min(intakePosition + (elapsedTime * 0.1), deployPosition));
+            controlIntakePosition(Math.min(intakePosition + (elapsedTime * 0.1), agitatePosition));
           } else {
             controlIntakePosition(intakePosition);
           }

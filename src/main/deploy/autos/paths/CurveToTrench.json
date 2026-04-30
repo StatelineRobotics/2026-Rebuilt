@@ -57,7 +57,7 @@
     ],
     "max_velocity_deg_per_sec": [
       {
-        "value": 180.0,
+        "value": 90.0,
         "start_ordinal": 0,
         "end_ordinal": 0
       }

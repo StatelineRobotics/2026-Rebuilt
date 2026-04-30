@@ -40,12 +40,11 @@ public class Launcher extends SubsystemBase {
 
   private boolean currentlyShooting = false;
   private Pose2d mostRecentTarget = new Pose2d();
-  private Pose2d[] intermediateTargets = new Pose2d[20];
   private double[] tofDifferences = new double[20];
   private double distance = 0.0;
   private Pose2d recentPerp = new Pose2d();
 
-  LinearFilter veloFilter = LinearFilter.movingAverage(3);
+  LinearFilter veloFilter = LinearFilter.movingAverage(2);
   double turretVelo = 0.0;
 
   // private LinearFilter distanceFilter = LinearFilter.movingAverage(20);
@@ -86,7 +85,6 @@ public class Launcher extends SubsystemBase {
     // estNextBestShot.turretAngle().minus(bestShootingSolution.turretAngle()).div(Seconds.of(0.02));
     // turret.setDesiredVelo(estTurretVelo);
 
-    intermediateTargets = ShotCalculator.intermediateTargets;
     mostRecentTarget = ShotCalculator.mostRecentTarget;
   }
 

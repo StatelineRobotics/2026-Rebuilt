@@ -8,7 +8,6 @@ import static edu.wpi.first.units.Units.Degrees;
 
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -38,7 +37,6 @@ public class ShotCalculator {
 
   private static Translation2d targetPose = Translation2d.kZero;
   private static final int NumItterations = 20;
-  public static final Pose2d[] intermediateTargets = new Pose2d[NumItterations];
   public static final double[] tofDifference = new double[NumItterations];
 
   private static final NetworkTableEntry tofMult =
@@ -202,7 +200,6 @@ public class ShotCalculator {
       double offsetY =
           (robotVelocity.vyMetersPerSecond + rotLinearVelocity.getY()) * linearDragComp(timeOfFlight);
       lookaheadPose = targetPose.minus(new Translation2d(offsetX, offsetY));
-      intermediateTargets[i] = new Pose2d(lookaheadPose, Rotation2d.kZero);
       lookaheadLauncherToTargetDistance = launcherPosition.getDistance(lookaheadPose);
       lastTOF = timeOfFlight;
       tofDifference = Math.abs(timeOfFlight - lastTOF);

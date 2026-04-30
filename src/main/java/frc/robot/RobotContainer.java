@@ -79,14 +79,12 @@ public class RobotContainer {
     drivetrain.sideChosser = sideChosser;
 
     SmartDashboard.putData("testLauncher", launcher.testCommand().alongWith(indexer.runIndexer()));
-    SmartDashboard.putData(
-        "Target Dashboard",
-        launcher.targetDashboard()
-            .alongWith(Commands.waitUntil(launcher.launcherReady).andThen(indexer.antiJamRun())));
+    // SmartDashboard.putData(
+    //     "Target Dashboard",
+    //     launcher.targetDashboard()
+    //         .alongWith(Commands.waitUntil(launcher.launcherReady).andThen(indexer.antiJamRun())));
 
     FollowPath.setPoseLoggingConsumer((pair) -> blinePose = pair.getSecond());
-
-    // SmartDashboard.putData(CommandScheduler.getInstance());
 
     configureBindings();
 
@@ -131,7 +129,7 @@ public class RobotContainer {
         })));
 
     joystick.leftTrigger().whileTrue(intake.intakeCommand()).onFalse(intake.liftIntake());
-    joystick.leftBumper().whileTrue(intake.reverseIntake());
+    joystick.leftBumper().whileTrue(intake.reverseIntake()).onFalse(intake.liftIntake());
     // joystick.rightBumper().whileTrue(indexer.reverseIndexer()).whileFalse(indexer.idleCommand());
     joystick.rightBumper()
         .whileTrue(getShootCommand()
