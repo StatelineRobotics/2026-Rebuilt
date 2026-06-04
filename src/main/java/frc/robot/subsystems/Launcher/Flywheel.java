@@ -14,7 +14,6 @@ import com.ctre.phoenix6.controls.NeutralOut;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.sim.ChassisReference;
@@ -36,7 +35,7 @@ import java.util.function.DoubleSupplier;
 @Logged
 public class Flywheel extends SubsystemBase {
 
-  private static final double motorToFlywheelRatio = 15.0 / 18.0;
+  private static final double motorToFlywheelRatio = 18.0 / 15.0;
 
   private TalonFX leftFlywheelMotor = new TalonFX(Constants.leftFlyweelId, TunerConstants.kCANBus);
   private TalonFXSimState simState = leftFlywheelMotor.getSimState();
@@ -61,7 +60,7 @@ public class Flywheel extends SubsystemBase {
     speedOffset.getTopic().genericPublish("double");
     speedOffset.getTopic().setPersistent(true);
 
-    leftFlywheelMotor.getConfigurator().apply(motorConfig());
+    leftFlywheelMotor.getConfigurator().apply(motorConfig().Voltage.withPeakReverseVoltage(0));
     rightFlywheelMotor.getConfigurator().apply(motorConfig());
     rightFlywheelMotor.setControl(new Follower(Constants.leftFlyweelId, MotorAlignmentValue.Opposed));
 
@@ -82,14 +81,11 @@ public class Flywheel extends SubsystemBase {
         .withSupplyCurrentLimitEnable(true)
         .withSupplyCurrentLimit(30);
 
-    motorConfig
-        .MotorOutput
-        .withNeutralMode(NeutralModeValue.Coast)
-        .withInverted(InvertedValue.CounterClockwise_Positive);
+    motorConfig.MotorOutput.withNeutralMode(NeutralModeValue.Coast);
 
     motorConfig.Feedback.withSensorToMechanismRatio(motorToFlywheelRatio);
 
-    motorConfig.Slot0.withKP(0.75).withKD(0.0).withKS(0.24959).withKV(0.099239);
+    motorConfig.Slot0.withKP(1).withKD(0.0).withKS(0.31).withKV(0.145);
 
     return motorConfig;
   }

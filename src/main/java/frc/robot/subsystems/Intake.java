@@ -113,9 +113,6 @@ public class Intake extends SubsystemBase {
     }
 
     otherRollerMotor.setControl(new Follower(Constants.rollerId, MotorAlignmentValue.Opposed));
-    if (pivotEncoder.getPosition() < 0.08 || pivotMotor.getEncoder().getPosition() < 0.08) {
-      turretSafe = true;
-    }
 
     SmartDashboard.putBoolean("UsePivotInternal", false);
   }
@@ -129,6 +126,10 @@ public class Intake extends SubsystemBase {
           lastUseValue ? FeedbackSensor.kPrimaryEncoder : FeedbackSensor.kAbsoluteEncoder);
 
       pivotMotor.configureAsync(otfConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
+    }
+
+    if (pivotEncoder.getPosition() < 0.08 || pivotMotor.getEncoder().getPosition() < 0.08) {
+      turretSafe = true;
     }
   }
 
@@ -195,8 +196,8 @@ public class Intake extends SubsystemBase {
   public Command intakeCommand() {
     return startRun(
         () -> {
-          rollerMotor.setControl(voltageRequest.withOutput(8.0));
-          lowerRollerMotor.setControl(voltageRequest.withOutput(7.0));
+          rollerMotor.setControl(voltageRequest.withOutput(10.0));
+          lowerRollerMotor.setControl(voltageRequest.withOutput(10.0));
         },
         () -> {
           controlIntakePosition(intakePosition);

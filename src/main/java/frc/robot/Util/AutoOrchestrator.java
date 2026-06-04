@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import frc.robot.AutoCommands;
 import frc.robot.lib.BLine.FollowPath;
 import frc.robot.lib.BLine.FollowPath.Builder;
@@ -34,11 +35,11 @@ public class AutoOrchestrator {
   private String[] initialPathOptions = {
     "trenchShort", "trenchMid", "trenchFar", "stackedTrenchShort", "stackedTrenchMid", "stackedTrenchFar"
   };
-  private String[] secondStageOptions = {"returnBump", "returnTrench", "frontDepot", "sideDepot"};
+  private String[] secondStageOptions = {"returnBump", "returnTrench", "frontDepot", "sideDepot", "short side depot"};
   private String[] thirdStageOptions = {"frontDepot", "sideDepot", "CurveToTrench", "trenchShort"};
   private String[] fourthStageOptions = {"secondSwipe"};
   private String[] fithStageOptions = {"returnBump", "returnTrench"};
-  private String[] sixthStageOptions = {"frontDepot", "sideDepot", "CurveToTrench"};
+  private String[] sixthStageOptions = {"frontDepot", "sideDepot", "CurveToTrench", "short side depot"};
 
   public AutoOrchestrator(Builder builder, AutoCommands commands, BooleanSupplier mirror) {
     twistMirror.mirror();
@@ -108,7 +109,11 @@ public class AutoOrchestrator {
                 .intake()
                 .alongWith(Commands.waitSeconds(0.5)
                     .andThen(autoCommands.shoot().withTimeout(5.0)))));
-    chooser.addOption("intake", autoCommands.intake().withTimeout(0.25));
+    chooser.addOption(
+        "intake and wait",
+        new ParallelRaceGroup(
+            autoCommands.intake(),
+            Commands.deferredProxy(() -> Commands.waitSeconds(SmartDashboard.getNumber("Auto Delay", 0)))));
     SmartDashboard.putData("Start Options", chooser);
     return chooser;
   }

@@ -22,7 +22,8 @@ public class AutoCommands {
 
   public Command shoot() {
     return launcher.targetHub()
-        .alongWith(Commands.waitUntil(launcher.launcherReady).andThen(indexer.antiJamRun()))
+        .alongWith(Commands.waitSeconds(0.5)
+            .andThen(Commands.waitUntil(launcher.launcherReady).andThen(indexer.antiJamRun())))
         .asProxy();
   }
 
