@@ -52,7 +52,7 @@ public class Intake extends SubsystemBase {
   private static final double pivotRatio = 1.0 / (16.0 * (60.0 / 24.0) * 2); // planetary * gears * chain
 
   private static final double storePosition = 0.195;
-  private static final double intakePosition = -0.15;
+  private static final double intakePosition = -0.149;
   private static final double agitatePosition = 0.06;
   private static final double slightLiftPosition = intakePosition + 0.05;
 

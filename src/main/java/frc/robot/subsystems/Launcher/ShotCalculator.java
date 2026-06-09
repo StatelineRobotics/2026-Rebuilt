@@ -83,15 +83,15 @@ public class ShotCalculator {
   private static InterpolatingDoubleTreeMap flywheelMap = new InterpolatingDoubleTreeMap();
 
   static {
-    flywheelMap.put(2.17, 73.0);
-    flywheelMap.put(2.51, 73.0);
-    flywheelMap.put(3.049, 74.0);
-    flywheelMap.put(3.515, 77.0);
-    flywheelMap.put(4.011, 80.0);
-    flywheelMap.put(4.5, 82.0);
-    flywheelMap.put(5.4, 87.0);
-    flywheelMap.put(5.0, 85.0);
-    flywheelMap.put(8.0, 93.0);
+    flywheelMap.put(2.17, 36.0);
+    flywheelMap.put(2.51, 37.0);
+    flywheelMap.put(3.049, 38.0);
+    flywheelMap.put(3.515, 41.0);
+    flywheelMap.put(4.011, 44.0);
+    flywheelMap.put(4.5, 45.5);
+    flywheelMap.put(5.0, 49.0);
+    flywheelMap.put(5.4, 51.0);
+    flywheelMap.put(8.0, 57.0);
   }
 
   private static InterpolatingDoubleTreeMap passHoodMap = new InterpolatingDoubleTreeMap();
@@ -107,14 +107,14 @@ public class ShotCalculator {
   private static InterpolatingDoubleTreeMap passFlywheelMap = new InterpolatingDoubleTreeMap();
 
   static {
-    passFlywheelMap.put(5.5, 75.0);
-    passFlywheelMap.put(6.0, 80.0);
-    passFlywheelMap.put(7.0, 88.0);
-    passFlywheelMap.put(7.5, 88.0);
-    passFlywheelMap.put(8.5, 92.0);
-    passFlywheelMap.put(9.5, 100.0);
-    passFlywheelMap.put(10.5, 115.0);
-    passFlywheelMap.put(20.0, 115.0);
+    passFlywheelMap.put(5.5, 38.0);
+    passFlywheelMap.put(6.0, 43.0);
+    passFlywheelMap.put(7.0, 51.0);
+    passFlywheelMap.put(7.5, 51.0);
+    passFlywheelMap.put(8.5, 54.0);
+    passFlywheelMap.put(9.5, 62.0);
+    passFlywheelMap.put(10.5, 75.0);
+    passFlywheelMap.put(20.0, 75.0);
   }
 
   public static double getFlywheelSpeed(double distance) {

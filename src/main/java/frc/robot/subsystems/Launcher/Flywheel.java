@@ -60,7 +60,7 @@ public class Flywheel extends SubsystemBase {
     speedOffset.getTopic().genericPublish("double");
     speedOffset.getTopic().setPersistent(true);
 
-    leftFlywheelMotor.getConfigurator().apply(motorConfig().Voltage.withPeakReverseVoltage(0));
+    leftFlywheelMotor.getConfigurator().apply(motorConfig());
     rightFlywheelMotor.getConfigurator().apply(motorConfig());
     rightFlywheelMotor.setControl(new Follower(Constants.leftFlyweelId, MotorAlignmentValue.Opposed));
 
@@ -79,13 +79,13 @@ public class Flywheel extends SubsystemBase {
         .withStatorCurrentLimitEnable(true)
         .withStatorCurrentLimit(80)
         .withSupplyCurrentLimitEnable(true)
-        .withSupplyCurrentLimit(30);
+        .withSupplyCurrentLimit(40);
 
     motorConfig.MotorOutput.withNeutralMode(NeutralModeValue.Coast);
 
     motorConfig.Feedback.withSensorToMechanismRatio(motorToFlywheelRatio);
 
-    motorConfig.Slot0.withKP(1).withKD(0.0).withKS(0.31).withKV(0.145);
+    motorConfig.Slot0.withKP(2.0).withKD(0.0).withKS(0.31).withKV(0.145);
 
     return motorConfig;
   }
