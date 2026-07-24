@@ -120,7 +120,7 @@ public class Launcher extends SubsystemBase {
   }
 
   public Command runToZero() {
-    return expose((Commands.waitSeconds(3.0).andThen(flywheel.idleCommand()))
+    return expose((Commands.waitSeconds(1.0).andThen(flywheel.idleCommand()))
             .alongWith(hood.targetAngle(() -> Rotation.of(0)))
             .alongWith(turret.targetAngleWithVelocity(
                 () -> bestShootingSolution.turretAngle(), () -> RadiansPerSecond.of(turretVelo))))

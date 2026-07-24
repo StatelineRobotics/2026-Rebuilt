@@ -2,8 +2,8 @@
   "path_elements": [
     {
       "type": "translation",
-      "x_meters": 2.752374100719426,
-      "y_meters": 5.599999999999999,
+      "x_meters": 1.8689622404432287,
+      "y_meters": 5.998960194963444,
       "intermediate_handoff_radius_meters": 0.2
     },
     {
@@ -18,19 +18,13 @@
     },
     {
       "type": "translation",
-      "x_meters": 2.1079448696479823,
-      "y_meters": 6.136749721886986,
-      "intermediate_handoff_radius_meters": 0.2
-    },
-    {
-      "type": "translation",
-      "x_meters": 2.1668657952314834,
-      "y_meters": 6.939534037420824,
+      "x_meters": 2.109871481665276,
+      "y_meters": 7.039274086161685,
       "intermediate_handoff_radius_meters": 0.2
     },
     {
       "type": "event_trigger",
-      "t_ratio": 0.8499999999999993,
+      "t_ratio": 1.0,
       "lib_key": "stopShoot"
     },
     {
@@ -52,7 +46,7 @@
       {
         "value": 1.0,
         "start_ordinal": 0,
-        "end_ordinal": 3
+        "end_ordinal": 2
       }
     ],
     "max_velocity_deg_per_sec": [
@@ -64,7 +58,7 @@
     ],
     "max_acceleration_deg_per_sec2": [
       {
-        "value": 180.0,
+        "value": 90.0,
         "start_ordinal": 0,
         "end_ordinal": 0
       }

@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import frc.robot.AutoCommands;
 import frc.robot.lib.BLine.FollowPath;
@@ -38,8 +39,9 @@ public class AutoOrchestrator {
   private String[] secondStageOptions = {"returnBump", "returnTrench", "frontDepot", "sideDepot", "short side depot"};
   private String[] thirdStageOptions = {"frontDepot", "sideDepot", "CurveToTrench", "trenchShort"};
   private String[] fourthStageOptions = {"secondSwipe"};
-  private String[] fithStageOptions = {"returnBump", "returnTrench"};
-  private String[] sixthStageOptions = {"frontDepot", "sideDepot", "CurveToTrench", "short side depot"};
+  private String[] fithStageOptions = {"returnBump", "returnTrench", "reorientTrench"};
+  private String[] sixthStageOptions = {"frontDepot", "sideDepot", "CurveToTrench", "short side depot", "secondSwipe"
+  };
 
   public AutoOrchestrator(Builder builder, AutoCommands commands, BooleanSupplier mirror) {
     twistMirror.mirror();
@@ -52,6 +54,7 @@ public class AutoOrchestrator {
     secondStage = buildPathChooser("Second Stage", secondStageOptions);
     thirdStage = buildPathChooser("Third Stage", thirdStageOptions);
     fourthStage = buildPathChooser("Fourth Stage", fourthStageOptions);
+    fourthStage.addOption("shootFor5", autoCommands.shoot().withTimeout(1));
     fithStage = buildPathChooser("fith stage", fithStageOptions);
     sixthStage = buildPathChooser("sixth Stage", sixthStageOptions);
     // tags = buildTags();
@@ -90,7 +93,11 @@ public class AutoOrchestrator {
     for (String name : names) {
       LoadedPath path = LoadedPath.tryAll(name, bLineBuilder, shouldMirror);
       if (path.pathAvalible) {
-        chooser.addOption(name, path.getPathCommand());
+        if (name == "sideDepot" || name == "CurveToTrench") {
+          chooser.addOption(name, new ParallelCommandGroup(path.getPathCommand(), autoCommands.shoot()));
+        } else {
+          chooser.addOption(name, path.getPathCommand());
+        }
       }
     }
     SmartDashboard.putData(chooserName, chooser);
@@ -134,7 +141,8 @@ public class AutoOrchestrator {
         thirdStage.getSelected(),
         fourthStage.getSelected(),
         fithStage.getSelected(),
-        sixthStage.getSelected());
+        sixthStage.getSelected(),
+        autoCommands.shoot());
   }
 
   private Command deferEverything(Command... commands) {

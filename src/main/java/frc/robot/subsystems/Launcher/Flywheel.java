@@ -79,7 +79,7 @@ public class Flywheel extends SubsystemBase {
         .withStatorCurrentLimitEnable(true)
         .withStatorCurrentLimit(80)
         .withSupplyCurrentLimitEnable(true)
-        .withSupplyCurrentLimit(40);
+        .withSupplyCurrentLimit(30);
 
     motorConfig.MotorOutput.withNeutralMode(NeutralModeValue.Coast);
 

@@ -85,8 +85,8 @@ public class ShotCalculator {
   static {
     flywheelMap.put(2.17, 36.0);
     flywheelMap.put(2.51, 37.0);
-    flywheelMap.put(3.049, 38.0);
-    flywheelMap.put(3.515, 41.0);
+    flywheelMap.put(3.049, 39.0);
+    flywheelMap.put(3.515, 41.5);
     flywheelMap.put(4.011, 44.0);
     flywheelMap.put(4.5, 45.5);
     flywheelMap.put(5.0, 49.0);

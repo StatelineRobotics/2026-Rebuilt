@@ -133,7 +133,7 @@ public class Vision extends SubsystemBase {
     private static final double disabledXyStd = 0.4;
     private static final double disabledAngStd = 0.14;
     public static final AprilTagFieldLayout kTagLayout =
-        AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
+        AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltAndymark);
 
     public Camera(
         String carmeraName, Transform3d robotToCameraTransform, VisionSystemSim visionSim, boolean useSim) {

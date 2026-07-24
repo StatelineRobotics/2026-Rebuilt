@@ -52,7 +52,7 @@ public class Intake extends SubsystemBase {
   private static final double pivotRatio = 1.0 / (16.0 * (60.0 / 24.0) * 2); // planetary * gears * chain
 
   private static final double storePosition = 0.195;
-  private static final double intakePosition = -0.149;
+  private static final double intakePosition = -0.145;
   private static final double agitatePosition = 0.06;
   private static final double slightLiftPosition = intakePosition + 0.05;
 
@@ -97,8 +97,8 @@ public class Intake extends SubsystemBase {
         .CurrentLimits
         .withSupplyCurrentLimitEnable(true)
         .withStatorCurrentLimitEnable(true)
-        .withSupplyCurrentLimit(30)
-        .withStatorCurrentLimit(80);
+        .withSupplyCurrentLimit(20)
+        .withStatorCurrentLimit(60);
 
     rollerMotor.getConfigurator().apply(rollerConfig);
     otherRollerMotor.getConfigurator().apply(rollerConfig);
@@ -159,7 +159,7 @@ public class Intake extends SubsystemBase {
     return startRun(
         () -> {
           rollerMotor.setControl(neutralRequest);
-          lowerRollerMotor.setControl(voltageRequest.withOutput(3.0));
+          // lowerRollerMotor.setControl(voltageRequest.withOutput(3.0));
         },
         () -> {
           controlIntakePosition(intakePosition);
@@ -182,7 +182,7 @@ public class Intake extends SubsystemBase {
     return startRun(
         () -> {
           rollerMotor.setControl(voltageRequest.withOutput(3.0));
-          lowerRollerMotor.setControl(voltageRequest.withOutput(3.0));
+          // lowerRollerMotor.setControl(voltageRequest.withOutput(3.0));
         },
         () -> {
           controlIntakePosition(intakePosition);
@@ -197,7 +197,7 @@ public class Intake extends SubsystemBase {
     return startRun(
         () -> {
           rollerMotor.setControl(voltageRequest.withOutput(10.0));
-          lowerRollerMotor.setControl(voltageRequest.withOutput(10.0));
+          // lowerRollerMotor.setControl(voltageRequest.withOutput(10.0));
         },
         () -> {
           controlIntakePosition(intakePosition);
@@ -208,7 +208,7 @@ public class Intake extends SubsystemBase {
     return startRun(
         () -> {
           rollerMotor.setControl(voltageRequest.withOutput(-8.0));
-          lowerRollerMotor.setControl(voltageRequest.withOutput(-9.0));
+          // lowerRollerMotor.setControl(voltageRequest.withOutput(-9.0));
         },
         () -> {
           controlIntakePosition(intakePosition);
