@@ -313,6 +313,12 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     if (ignorePID || SmartDashboard.getBoolean("IgnoreTrenchPID", false)) {
       return 0.0;
     }
+
+    double sign = -1.0;
+    if (DriverStation.getAlliance().orElseGet(() -> Alliance.Blue) == Alliance.Red) {
+      sign = 1.0;
+    }
+
     var pose = getEstimatedPose();
     boolean closeX = Math.abs(pose.getX() - Inches.of(182.11).in(Meters))
         < Inches.of(75).in(Meters);
@@ -320,10 +326,10 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         < Inches.of(100).in(Meters);
     if (closeX || farX) {
       if (pose.getY() < Inches.of(62.0).in(Meters)) {
-        return -yAxisController.calculate(Inches.of(25.38).in(Meters), pose.getY());
+        return sign * yAxisController.calculate(Inches.of(25.38).in(Meters), pose.getY());
       }
       if (pose.getY() > Inches.of(255.688).in(Meters)) {
-        return -yAxisController.calculate(Inches.of(292.308).in(Meters), pose.getY());
+        return sign * yAxisController.calculate(Inches.of(292.308).in(Meters), pose.getY());
       }
     }
     return 0.0;
