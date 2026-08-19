@@ -147,8 +147,7 @@ public class Launcher extends SubsystemBase {
 
   public Command targetDashboard() {
     return expose(flywheel.runAtDashboardVelocity()
-        .alongWith(hood.targetDashboardAngle()
-            .alongWith(turret.targetAngle(() -> bestShootingSolution.turretAngle()))));
+        .alongWith(hood.targetDashboardAngle().alongWith(turret.targetDashboardAngle())));
   }
 
   public Command testCommand() {

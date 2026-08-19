@@ -79,10 +79,10 @@ public class RobotContainer {
     drivetrain.sideChosser = sideChosser;
 
     SmartDashboard.putData("testLauncher", launcher.testCommand().alongWith(indexer.runIndexer()));
-    // SmartDashboard.putData(
-    //     "Target Dashboard",
-    //     launcher.targetDashboard()
-    //         .alongWith(Commands.waitUntil(launcher.launcherReady).andThen(indexer.antiJamRun())));
+    SmartDashboard.putData(
+        "Target Dashboard",
+        launcher.targetDashboard()
+            .alongWith(Commands.waitUntil(launcher.launcherReady).andThen(indexer.antiJamRun())));
 
     FollowPath.setPoseLoggingConsumer((pair) -> blinePose = pair.getSecond());
 

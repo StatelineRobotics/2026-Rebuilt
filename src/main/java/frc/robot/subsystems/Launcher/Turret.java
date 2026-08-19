@@ -184,7 +184,7 @@ class Turret extends SubsystemBase {
     }
   }
 
-  private Command targetDashboardAngle() {
+  public Command targetDashboardAngle() {
     return targetAngle(() -> Degrees.of(turretEntry.getDouble(0)));
   }
 }
